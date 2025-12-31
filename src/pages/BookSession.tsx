@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sparkles, ArrowLeft, Star, Clock, Calendar as CalendarIcon, Loader2, User, CheckCircle2 } from "lucide-react";
-import { format } from "date-fns";
+import { Sparkles, ArrowLeft, Star, Clock, Calendar as CalendarIcon, Loader2, User, CheckCircle2, AlertCircle } from "lucide-react";
+import { format, getDay } from "date-fns";
 import { toast } from "sonner";
+import { WeeklyAvailability } from "@/components/AvailabilityScheduler";
+import { cn } from "@/lib/utils";
+
+interface TimeSlot {
+  start: string;
+  end: string;
+}
 
 interface TutorInfo {
   user_id: string;
@@ -25,6 +31,7 @@ interface TutorInfo {
   teaching_style: string | null;
   rating: number;
   total_reviews: number;
+  availability: WeeklyAvailability | null;
 }
 
 const BookSession = () => {
@@ -82,6 +89,7 @@ const BookSession = () => {
           teaching_style: tutorData?.teaching_style || null,
           rating: tutorData?.rating || 0,
           total_reviews: tutorData?.total_reviews || 0,
+          availability: tutorData?.availability as unknown as WeeklyAvailability | null,
         });
 
         if (tutorData?.subjects?.length > 0) {
@@ -97,6 +105,72 @@ const BookSession = () => {
 
     fetchTutor();
   }, [tutorId]);
+
+  // Get available time slots for the selected date
+  const availableTimeSlots = useMemo(() => {
+    if (!selectedDate || !tutor?.availability) return [];
+
+    const dayOfWeek = getDay(selectedDate);
+    const dayMap: Record<number, keyof WeeklyAvailability> = {
+      0: "sunday",
+      1: "monday",
+      2: "tuesday",
+      3: "wednesday",
+      4: "thursday",
+      5: "friday",
+      6: "saturday",
+    };
+
+    const dayKey = dayMap[dayOfWeek];
+    const dayAvailability = tutor.availability[dayKey];
+
+    if (!dayAvailability?.enabled || !dayAvailability.slots?.length) {
+      return [];
+    }
+
+    // Generate time slots from the tutor's availability
+    const slots: string[] = [];
+    dayAvailability.slots.forEach((slot: TimeSlot) => {
+      const [startHour, startMin] = slot.start.split(":").map(Number);
+      const [endHour, endMin] = slot.end.split(":").map(Number);
+      
+      let currentHour = startHour;
+      let currentMin = startMin;
+
+      while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+        const timeStr = `${String(currentHour).padStart(2, "0")}:${String(currentMin).padStart(2, "0")}`;
+        slots.push(timeStr);
+        currentMin += 30;
+        if (currentMin >= 60) {
+          currentMin = 0;
+          currentHour++;
+        }
+      }
+    });
+
+    return slots;
+  }, [selectedDate, tutor?.availability]);
+
+  // Check if a date has availability
+  const isDayAvailable = (date: Date): boolean => {
+    if (!tutor?.availability) return true; // If no availability set, all days are available
+
+    const dayOfWeek = getDay(date);
+    const dayMap: Record<number, keyof WeeklyAvailability> = {
+      0: "sunday",
+      1: "monday",
+      2: "tuesday",
+      3: "wednesday",
+      4: "thursday",
+      5: "friday",
+      6: "saturday",
+    };
+
+    const dayKey = dayMap[dayOfWeek];
+    const dayAvailability = tutor.availability[dayKey];
+
+    return dayAvailability?.enabled && dayAvailability.slots?.length > 0;
+  };
 
   const handleBookSession = async () => {
     if (!user || !tutor || !selectedDate || !selectedTime || !subject) {
@@ -295,22 +369,48 @@ const BookSession = () => {
                       <Calendar
                         mode="single"
                         selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        disabled={(date) => date < new Date()}
+                        onSelect={(date) => {
+                          setSelectedDate(date);
+                          setSelectedTime(""); // Reset time when date changes
+                        }}
+                        disabled={(date) => date < new Date() || !isDayAvailable(date)}
                         initialFocus
+                        className="pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="time">Select Time</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                  />
+                  <Label>Select Time</Label>
+                  {!selectedDate ? (
+                    <p className="text-sm text-muted-foreground py-2">
+                      Please select a date first
+                    </p>
+                  ) : availableTimeSlots.length === 0 ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>No available times on this date</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto p-1">
+                      {availableTimeSlots.map((time) => (
+                        <Button
+                          key={time}
+                          type="button"
+                          variant={selectedTime === time ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setSelectedTime(time)}
+                          className={cn(
+                            "text-xs",
+                            selectedTime === time && "ring-2 ring-primary ring-offset-2"
+                          )}
+                        >
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
