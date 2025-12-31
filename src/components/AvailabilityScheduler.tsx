@@ -106,76 +106,79 @@ const AvailabilityScheduler = ({ availability, onChange }: AvailabilityScheduler
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {DAYS.map(({ key, label }) => (
-          <div key={key} className="border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  id={key}
-                  checked={availability[key].enabled}
-                  onCheckedChange={() => handleDayToggle(key)}
-                />
-                <Label htmlFor={key} className="font-medium cursor-pointer">
-                  {label}
-                </Label>
+        {DAYS.map(({ key, label }) => {
+          const dayAvailability = availability[key] || { enabled: false, slots: [] };
+          return (
+            <div key={key} className="border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id={key}
+                    checked={dayAvailability.enabled}
+                    onCheckedChange={() => handleDayToggle(key)}
+                  />
+                  <Label htmlFor={key} className="font-medium cursor-pointer">
+                    {label}
+                  </Label>
+                </div>
+                {dayAvailability.enabled && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => addSlot(key)}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Slot
+                  </Button>
+                )}
               </div>
-              {availability[key].enabled && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => addSlot(key)}
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Slot
-                </Button>
+
+              {dayAvailability.enabled && dayAvailability.slots.length > 0 && (
+                <div className="space-y-2 ml-7">
+                  {dayAvailability.slots.map((slot, slotIndex) => (
+                    <div key={slotIndex} className="flex items-center gap-2">
+                      <input
+                        type="time"
+                        value={slot.start}
+                        onChange={(e) =>
+                          handleSlotChange(key, slotIndex, "start", e.target.value)
+                        }
+                        className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      />
+                      <span className="text-muted-foreground">to</span>
+                      <input
+                        type="time"
+                        value={slot.end}
+                        onChange={(e) =>
+                          handleSlotChange(key, slotIndex, "end", e.target.value)
+                        }
+                        className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      />
+                      {dayAvailability.slots.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeSlot(key, slotIndex)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {dayAvailability.enabled && dayAvailability.slots.length === 0 && (
+                <p className="text-sm text-muted-foreground ml-7">
+                  No time slots added. Click "Add Slot" to add availability.
+                </p>
               )}
             </div>
-
-            {availability[key].enabled && availability[key].slots.length > 0 && (
-              <div className="space-y-2 ml-7">
-                {availability[key].slots.map((slot, slotIndex) => (
-                  <div key={slotIndex} className="flex items-center gap-2">
-                    <input
-                      type="time"
-                      value={slot.start}
-                      onChange={(e) =>
-                        handleSlotChange(key, slotIndex, "start", e.target.value)
-                      }
-                      className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    />
-                    <span className="text-muted-foreground">to</span>
-                    <input
-                      type="time"
-                      value={slot.end}
-                      onChange={(e) =>
-                        handleSlotChange(key, slotIndex, "end", e.target.value)
-                      }
-                      className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    />
-                    {availability[key].slots.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeSlot(key, slotIndex)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {availability[key].enabled && availability[key].slots.length === 0 && (
-              <p className="text-sm text-muted-foreground ml-7">
-                No time slots added. Click "Add Slot" to add availability.
-              </p>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );
