@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2 } from "lucide-react";
+import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -164,6 +164,21 @@ const Dashboard = () => {
               </Link>
             </>
           )}
+          {isTutor && (
+            <Link to="/profile">
+              <Card className="hover:shadow-medium transition-shadow cursor-pointer group border-2 border-primary/20">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Settings className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Set Availability</p>
+                    <p className="text-sm text-muted-foreground">Manage schedule</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          )}
           <Link to="/sessions">
             <Card className="hover:shadow-medium transition-shadow cursor-pointer group">
               <CardContent className="p-6 flex items-center gap-4">
@@ -173,6 +188,19 @@ const Dashboard = () => {
                 <div>
                   <p className="font-semibold text-foreground">My Sessions</p>
                   <p className="text-sm text-muted-foreground">View schedule</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/messages">
+            <Card className="hover:shadow-medium transition-shadow cursor-pointer group">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                  <MessageSquare className="w-6 h-6 text-accent" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Messages</p>
+                  <p className="text-sm text-muted-foreground">Chat with users</p>
                 </div>
               </CardContent>
             </Card>
