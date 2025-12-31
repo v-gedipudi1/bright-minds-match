@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, ArrowLeft, Camera, Loader2, Save, User } from "lucide-react";
 import { toast } from "sonner";
+import AvailabilityScheduler, { WeeklyAvailability, getDefaultAvailability } from "@/components/AvailabilityScheduler";
 
 interface Profile {
   id: string;
@@ -26,6 +27,7 @@ interface TutorProfile {
   experience_years: number;
   education: string | null;
   teaching_style: string | null;
+  availability: WeeklyAvailability | null;
 }
 
 interface StudentProfile {
@@ -57,6 +59,7 @@ const Profile = () => {
   const [experienceYears, setExperienceYears] = useState("");
   const [education, setEducation] = useState("");
   const [teachingStyle, setTeachingStyle] = useState("");
+  const [availability, setAvailability] = useState<WeeklyAvailability>(getDefaultAvailability());
   const [learningGoals, setLearningGoals] = useState("");
   const [learningStyle, setLearningStyle] = useState("");
   const [personality, setPersonality] = useState("");
@@ -94,12 +97,22 @@ const Profile = () => {
             .maybeSingle();
 
           if (tutorError) throw tutorError;
-          setTutorProfile(tutorData);
+          setTutorProfile(tutorData ? {
+            subjects: tutorData.subjects || [],
+            hourly_rate: tutorData.hourly_rate || 0,
+            experience_years: tutorData.experience_years || 0,
+            education: tutorData.education,
+            teaching_style: tutorData.teaching_style,
+            availability: tutorData.availability as unknown as WeeklyAvailability | null,
+          } : null);
           setSubjects((tutorData?.subjects || []).join(", "));
           setHourlyRate(String(tutorData?.hourly_rate || ""));
           setExperienceYears(String(tutorData?.experience_years || ""));
           setEducation(tutorData?.education || "");
           setTeachingStyle(tutorData?.teaching_style || "");
+          // Load availability or use default
+          const savedAvailability = tutorData?.availability as unknown as WeeklyAvailability | null;
+          setAvailability(savedAvailability || getDefaultAvailability());
         } else {
           const { data: studentData, error: studentError } = await supabase
             .from("student_profiles")
@@ -185,6 +198,7 @@ const Profile = () => {
             experience_years: parseInt(experienceYears) || 0,
             education,
             teaching_style: teachingStyle,
+            availability: JSON.parse(JSON.stringify(availability)),
           })
           .eq("user_id", user.id);
 
@@ -323,64 +337,70 @@ const Profile = () => {
 
         {/* Role-specific fields */}
         {profile?.role === "tutor" ? (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Tutor Details</CardTitle>
-              <CardDescription>Information for students to find you</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="subjects">Subjects (comma-separated)</Label>
-                <Input
-                  id="subjects"
-                  value={subjects}
-                  onChange={(e) => setSubjects(e.target.value)}
-                  placeholder="Mathematics, Physics, Chemistry"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+          <>
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Tutor Details</CardTitle>
+                <CardDescription>Information for students to find you</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
+                  <Label htmlFor="subjects">Subjects (comma-separated)</Label>
                   <Input
-                    id="hourlyRate"
-                    type="number"
-                    value={hourlyRate}
-                    onChange={(e) => setHourlyRate(e.target.value)}
-                    placeholder="50"
+                    id="subjects"
+                    value={subjects}
+                    onChange={(e) => setSubjects(e.target.value)}
+                    placeholder="Mathematics, Physics, Chemistry"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
+                    <Input
+                      id="hourlyRate"
+                      type="number"
+                      value={hourlyRate}
+                      onChange={(e) => setHourlyRate(e.target.value)}
+                      placeholder="50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="experienceYears">Years of Experience</Label>
+                    <Input
+                      id="experienceYears"
+                      type="number"
+                      value={experienceYears}
+                      onChange={(e) => setExperienceYears(e.target.value)}
+                      placeholder="5"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="education">Education</Label>
+                  <Input
+                    id="education"
+                    value={education}
+                    onChange={(e) => setEducation(e.target.value)}
+                    placeholder="Ph.D. in Mathematics from MIT"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="experienceYears">Years of Experience</Label>
-                  <Input
-                    id="experienceYears"
-                    type="number"
-                    value={experienceYears}
-                    onChange={(e) => setExperienceYears(e.target.value)}
-                    placeholder="5"
+                  <Label htmlFor="teachingStyle">Teaching Style</Label>
+                  <Textarea
+                    id="teachingStyle"
+                    value={teachingStyle}
+                    onChange={(e) => setTeachingStyle(e.target.value)}
+                    placeholder="Describe your teaching approach..."
+                    rows={3}
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="education">Education</Label>
-                <Input
-                  id="education"
-                  value={education}
-                  onChange={(e) => setEducation(e.target.value)}
-                  placeholder="Ph.D. in Mathematics from MIT"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="teachingStyle">Teaching Style</Label>
-                <Textarea
-                  id="teachingStyle"
-                  value={teachingStyle}
-                  onChange={(e) => setTeachingStyle(e.target.value)}
-                  placeholder="Describe your teaching approach..."
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <div className="mb-6">
+              <AvailabilityScheduler availability={availability} onChange={setAvailability} />
+            </div>
+          </>
         ) : (
           <Card className="mb-6">
             <CardHeader>
