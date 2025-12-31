@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sparkles, ArrowLeft, Star, Clock, Calendar as CalendarIcon, Loader2, User, CheckCircle2, AlertCircle } from "lucide-react";
+import { Sparkles, ArrowLeft, Star, Clock, Calendar as CalendarIcon, Loader2, User, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
 import { format, getDay } from "date-fns";
 import { toast } from "sonner";
 import { WeeklyAvailability } from "@/components/AvailabilityScheduler";
@@ -339,6 +339,15 @@ const BookSession = () => {
                     {tutor.bio}
                   </p>
                 )}
+
+                <Button
+                  variant="outline"
+                  className="w-full mt-4"
+                  onClick={() => navigate(`/messages?with=${tutor.user_id}`)}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Message Tutor
+                </Button>
               </div>
             </CardContent>
           </Card>

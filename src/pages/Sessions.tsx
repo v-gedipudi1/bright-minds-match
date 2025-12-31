@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle } from "lucide-react";
+import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 interface Session {
@@ -26,10 +26,39 @@ interface Session {
 const Sessions = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [userRole, setUserRole] = useState<"student" | "tutor" | null>(null);
   const [updatingSession, setUpdatingSession] = useState<string | null>(null);
+  const [processingPayment, setProcessingPayment] = useState<string | null>(null);
+
+  // Handle payment success/cancel from URL params
+  useEffect(() => {
+    const paymentStatus = searchParams.get("payment");
+    const sessionId = searchParams.get("session_id");
+    
+    if (paymentStatus === "success" && sessionId) {
+      // Update session status to confirmed after successful payment
+      const updatePaymentStatus = async () => {
+        try {
+          await supabase
+            .from("sessions")
+            .update({ status: "confirmed" })
+            .eq("id", sessionId);
+          toast.success("Payment successful! Your session is confirmed.");
+          // Clear the URL params
+          navigate("/sessions", { replace: true });
+        } catch (error) {
+          console.error("Error updating session after payment:", error);
+        }
+      };
+      updatePaymentStatus();
+    } else if (paymentStatus === "cancelled") {
+      toast.info("Payment was cancelled");
+      navigate("/sessions", { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -100,18 +129,25 @@ const Sessions = () => {
   const updateSessionStatus = async (sessionId: string, status: string) => {
     setUpdatingSession(sessionId);
     try {
+      // If tutor is accepting, set status to awaiting_payment so student can pay
+      const newStatus = status === "confirmed" ? "awaiting_payment" : status;
+      
       const { error } = await supabase
         .from("sessions")
-        .update({ status })
+        .update({ status: newStatus })
         .eq("id", sessionId);
 
       if (error) throw error;
 
       setSessions((prev) =>
-        prev.map((s) => (s.id === sessionId ? { ...s, status } : s))
+        prev.map((s) => (s.id === sessionId ? { ...s, status: newStatus } : s))
       );
 
-      toast.success(`Session ${status}`);
+      if (newStatus === "awaiting_payment") {
+        toast.success("Session accepted! Waiting for student payment.");
+      } else {
+        toast.success(`Session ${status}`);
+      }
     } catch (error) {
       console.error("Error updating session:", error);
       toast.error("Failed to update session");
@@ -120,8 +156,36 @@ const Sessions = () => {
     }
   };
 
+  const handlePayment = async (session: Session) => {
+    if (!user) return;
+    
+    setProcessingPayment(session.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-session-payment", {
+        body: {
+          sessionId: session.id,
+          amount: session.price,
+          tutorName: session.tutor_name,
+          subject: session.subject,
+          duration: session.duration_minutes,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (error) {
+      console.error("Error creating payment:", error);
+      toast.error("Failed to initiate payment");
+    } finally {
+      setProcessingPayment(null);
+    }
+  };
+
   const upcomingSessions = sessions.filter(
-    (s) => s.status === "confirmed" || s.status === "pending"
+    (s) => s.status === "confirmed" || s.status === "pending" || s.status === "awaiting_payment"
   );
   const pastSessions = sessions.filter(
     (s) => s.status === "completed" || s.status === "cancelled"
@@ -238,11 +302,58 @@ const Sessions = () => {
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                           session.status === "confirmed"
                             ? "bg-green-100 text-green-700"
+                            : session.status === "awaiting_payment"
+                            ? "bg-blue-100 text-blue-700"
                             : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
-                        {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+                        {session.status === "awaiting_payment" 
+                          ? "Awaiting Payment" 
+                          : session.status.charAt(0).toUpperCase() + session.status.slice(1)}
                       </span>
+                      
+                      {/* Student: Pay button when awaiting payment */}
+                      {userRole === "student" && session.status === "awaiting_payment" && (
+                        <Button
+                          size="sm"
+                          onClick={() => handlePayment(session)}
+                          disabled={processingPayment === session.id}
+                          className="gap-1"
+                        >
+                          {processingPayment === session.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <CreditCard className="w-4 h-4" />
+                              Pay ${session.price?.toFixed(2)}
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      
+                      {/* Student: Message tutor button */}
+                      {userRole === "student" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => navigate(`/messages?with=${session.tutor_id}`)}
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </Button>
+                      )}
+                      
+                      {/* Tutor: Message student button */}
+                      {userRole === "tutor" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => navigate(`/messages?with=${session.student_id}`)}
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </Button>
+                      )}
+                      
+                      {/* Tutor: Accept/Decline buttons for pending sessions */}
                       {userRole === "tutor" && session.status === "pending" && (
                         <div className="flex gap-2">
                           <Button
