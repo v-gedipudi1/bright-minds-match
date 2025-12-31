@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, Clock, Globe, Award } from "lucide-react";
@@ -146,9 +147,11 @@ const FeaturedTutors = () => {
                     </span>
                     <span className="text-sm text-muted-foreground">/hr</span>
                   </div>
-                  <Button variant="default" size="sm">
-                    View Profile
-                  </Button>
+                  <Link to="/auth">
+                    <Button variant="default" size="sm">
+                      View Profile
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -157,9 +160,11 @@ const FeaturedTutors = () => {
 
         {/* View All CTA */}
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            Browse All Tutors
-          </Button>
+          <Link to="/auth">
+            <Button variant="outline" size="lg">
+              Browse All Tutors
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

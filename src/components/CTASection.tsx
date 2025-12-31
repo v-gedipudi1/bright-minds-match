@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 
@@ -28,21 +29,25 @@ const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              variant="hero"
-              size="xl"
-              className="shadow-glow"
-            >
-              Find My Tutor Now
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="xl"
-              className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
-            >
-              Become a Tutor
-            </Button>
+            <Link to="/auth">
+              <Button
+                variant="hero"
+                size="xl"
+                className="shadow-glow"
+              >
+                Find My Tutor Now
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button
+                variant="outline"
+                size="xl"
+                className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
+              >
+                Become a Tutor
+              </Button>
+            </Link>
           </div>
 
           {/* Trust Badges */}

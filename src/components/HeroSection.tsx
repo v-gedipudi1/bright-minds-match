@@ -1,8 +1,17 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Search, Star, Users, Award } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    navigate("/auth");
+  };
+
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Image */}
@@ -48,10 +57,12 @@ const HeroSection = () => {
               <input
                 type="text"
                 placeholder="What subject do you need help with?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-border bg-card text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors shadow-soft"
               />
             </div>
-            <Button variant="hero" size="lg">
+            <Button variant="hero" size="lg" onClick={handleSearch}>
               Find My Tutor
             </Button>
           </div>
