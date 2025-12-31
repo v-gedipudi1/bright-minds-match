@@ -53,12 +53,25 @@ interface AvailabilitySchedulerProps {
 }
 
 const AvailabilityScheduler = ({ availability, onChange }: AvailabilitySchedulerProps) => {
+  // Ensure we have a complete availability object with all days
+  const safeAvailability: WeeklyAvailability = {
+    monday: availability?.monday || { enabled: false, slots: [] },
+    tuesday: availability?.tuesday || { enabled: false, slots: [] },
+    wednesday: availability?.wednesday || { enabled: false, slots: [] },
+    thursday: availability?.thursday || { enabled: false, slots: [] },
+    friday: availability?.friday || { enabled: false, slots: [] },
+    saturday: availability?.saturday || { enabled: false, slots: [] },
+    sunday: availability?.sunday || { enabled: false, slots: [] },
+  };
+
   const handleDayToggle = (day: keyof WeeklyAvailability) => {
-    const newAvailability = { ...availability };
-    newAvailability[day] = {
-      ...newAvailability[day],
-      enabled: !newAvailability[day].enabled,
-      slots: !newAvailability[day].enabled ? [{ ...DEFAULT_SLOT }] : [],
+    const currentDay = safeAvailability[day];
+    const newAvailability = {
+      ...safeAvailability,
+      [day]: {
+        enabled: !currentDay.enabled,
+        slots: !currentDay.enabled ? [{ ...DEFAULT_SLOT }] : [],
+      },
     };
     onChange(newAvailability);
   };
@@ -69,30 +82,39 @@ const AvailabilityScheduler = ({ availability, onChange }: AvailabilityScheduler
     field: "start" | "end",
     value: string
   ) => {
-    const newAvailability = { ...availability };
-    newAvailability[day] = {
-      ...newAvailability[day],
-      slots: newAvailability[day].slots.map((slot, i) =>
-        i === slotIndex ? { ...slot, [field]: value } : slot
-      ),
+    const currentDay = safeAvailability[day];
+    const newAvailability = {
+      ...safeAvailability,
+      [day]: {
+        ...currentDay,
+        slots: currentDay.slots.map((slot, i) =>
+          i === slotIndex ? { ...slot, [field]: value } : slot
+        ),
+      },
     };
     onChange(newAvailability);
   };
 
   const addSlot = (day: keyof WeeklyAvailability) => {
-    const newAvailability = { ...availability };
-    newAvailability[day] = {
-      ...newAvailability[day],
-      slots: [...newAvailability[day].slots, { ...DEFAULT_SLOT }],
+    const currentDay = safeAvailability[day];
+    const newAvailability = {
+      ...safeAvailability,
+      [day]: {
+        ...currentDay,
+        slots: [...currentDay.slots, { ...DEFAULT_SLOT }],
+      },
     };
     onChange(newAvailability);
   };
 
   const removeSlot = (day: keyof WeeklyAvailability, slotIndex: number) => {
-    const newAvailability = { ...availability };
-    newAvailability[day] = {
-      ...newAvailability[day],
-      slots: newAvailability[day].slots.filter((_, i) => i !== slotIndex),
+    const currentDay = safeAvailability[day];
+    const newAvailability = {
+      ...safeAvailability,
+      [day]: {
+        ...currentDay,
+        slots: currentDay.slots.filter((_, i) => i !== slotIndex),
+      },
     };
     onChange(newAvailability);
   };
@@ -107,7 +129,7 @@ const AvailabilityScheduler = ({ availability, onChange }: AvailabilityScheduler
       </CardHeader>
       <CardContent className="space-y-4">
         {DAYS.map(({ key, label }) => {
-          const dayAvailability = availability[key] || { enabled: false, slots: [] };
+          const dayAvailability = safeAvailability[key];
           return (
             <div key={key} className="border rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
