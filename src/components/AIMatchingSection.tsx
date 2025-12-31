@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Brain, Target, Zap, ArrowRight } from "lucide-react";
 
@@ -65,10 +66,12 @@ const AIMatchingSection = () => {
               ))}
             </div>
 
-            <Button variant="hero" size="lg">
-              Try AI Matching Free
-              <ArrowRight className="w-5 h-5" />
-            </Button>
+            <Link to="/auth">
+              <Button variant="hero" size="lg">
+                Try AI Matching Free
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
           </div>
 
           {/* Right Visual */}
