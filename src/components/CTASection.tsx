@@ -25,7 +25,7 @@ const CTASection = () => {
 
           <p className="text-lg text-secondary-foreground/80 mb-10 max-w-xl mx-auto">
             Join thousands of students who've found their perfect tutor match. 
-            Your first session consultation is free — no strings attached.
+            Your first session consultation is free, no strings attached.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
