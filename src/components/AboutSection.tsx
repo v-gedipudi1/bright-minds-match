@@ -35,8 +35,8 @@ const AboutSection = () => {
                   </p>
                   <p>
                     To meet demand, Venni began recruiting retired professors and advanced 
-                    college students, building a team of passionate educators. With 40+ students 
-                    and 18+ tutors, a pattern emerged—students thrived most when paired with 
+                    college students, building a team of passionate educators. As the student base 
+                    and tutor network grew, a pattern emerged, students thrived most when paired with 
                     the <span className="text-foreground font-medium">right</span> tutor.
                   </p>
                 </div>
@@ -50,14 +50,14 @@ const AboutSection = () => {
                 </h3>
                 <div className="space-y-4 text-muted-foreground leading-relaxed">
                   <p>
-                    After analyzing session data—tracking assessments, completion rates, and 
-                    progress—a breakthrough emerged. The strongest predictor of student success 
+                    After analyzing session data, tracking assessments, completion rates, and 
+                    progress, a breakthrough emerged. The strongest predictor of student success 
                     wasn't tutor expertise or experience. It was the alignment between the 
                     student's learning style and the tutor's teaching approach.
                   </p>
                   <p>
                     Students who preferred structured explanations struggled with exploratory 
-                    tutors—even highly qualified ones. The match mattered more than credentials.
+                    tutors, even highly qualified ones. The match mattered more than credentials.
                   </p>
                 </div>
               </CardContent>
@@ -112,7 +112,7 @@ const AboutSection = () => {
                   <p>
                     Bright Minds Match brings this data-driven matching approach online, 
                     connecting children and adult learners with the educators who can truly 
-                    help them grow. We don't just find you a tutor—we find you 
+                    help them grow. We don't just find you a tutor, we find you 
                     <span className="text-foreground font-medium"> your</span> tutor.
                   </p>
                   <div className="flex items-center gap-3 pt-4 border-t border-border">
@@ -121,7 +121,7 @@ const AboutSection = () => {
                     </div>
                     <div>
                       <p className="font-medium text-foreground">Venni Gedipudi</p>
-                      <p className="text-sm text-muted-foreground">Founder, Bright Minds Match</p>
+                      <p className="text-sm text-muted-foreground">Founder, Bright Minds Tutoring Service LLC</p>
                     </div>
                   </div>
                 </div>

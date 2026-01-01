@@ -6,7 +6,7 @@ const features = [
   {
     icon: Brain,
     title: "Learning Style Analysis",
-    description: "Our AI understands how you learn best — visual, auditory, or hands-on.",
+    description: "Our AI understands how you learn best, visual, auditory, or hands-on.",
   },
   {
     icon: Target,
@@ -44,7 +44,7 @@ const AIMatchingSection = () => {
 
             <p className="text-lg text-muted-foreground mb-8">
               Our proprietary AI analyzes your learning preferences, goals, and schedule 
-              to recommend tutors who are the perfect fit. No more guesswork — just 
+              to recommend tutors who are the perfect fit. No more guesswork, just 
               meaningful connections that accelerate your progress.
             </p>
 
@@ -123,9 +123,11 @@ const AIMatchingSection = () => {
                 <div className="p-4 rounded-xl bg-muted/50 border border-border">
                   <p className="text-xs text-muted-foreground mb-3">Top Match Found</p>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl gradient-secondary flex items-center justify-center text-secondary-foreground font-bold">
-                      SC
-                    </div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face" 
+                      alt="Dr. Sarah Chen"
+                      className="w-12 h-12 rounded-xl object-cover"
+                    />
                     <div className="flex-1">
                       <p className="font-semibold text-foreground text-sm">Dr. Sarah Chen</p>
                       <p className="text-xs text-muted-foreground">98% Match Score</p>

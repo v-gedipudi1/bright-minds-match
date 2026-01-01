@@ -34,7 +34,7 @@ const SubjectCategories = () => {
             Explore Subject Categories
           </h2>
           <p className="text-muted-foreground text-lg">
-            From math and science to music and art — find tutors for every subject you need.
+            From math and science to music and art, find tutors for every subject you need.
           </p>
         </div>
 
@@ -64,12 +64,9 @@ const SubjectCategories = () => {
                   }`}
                 />
               </div>
-              <h3 className="font-display font-bold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
+              <h3 className="font-display font-bold text-lg text-foreground group-hover:text-primary transition-colors">
                 {subject.name}
               </h3>
-              <p className="text-sm text-muted-foreground">
-                {subject.count.toLocaleString()} tutors
-              </p>
             </button>
           ))}
         </div>
