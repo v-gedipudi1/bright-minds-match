@@ -12,12 +12,32 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-SESSION-PAYMENT] ${step}${detailsStr}`);
 };
 
+// Input validation schema (manual validation for Deno edge function)
+const validateSessionId = (sessionId: unknown): string => {
+  if (typeof sessionId !== 'string') {
+    throw new Error('sessionId must be a string');
+  }
+  // UUID v4 format validation
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(sessionId)) {
+    throw new Error('sessionId must be a valid UUID');
+  }
+  return sessionId;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Use service role key to bypass RLS for session verification
   const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
+
+  // Use anon key for auth verification
+  const supabaseAuth = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
   );
@@ -25,15 +45,78 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const authHeader = req.headers.get("Authorization")!;
+    // Authenticate user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("No authorization header provided");
+    }
     const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
+    const { data } = await supabaseAuth.auth.getUser(token);
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { sessionId, amount, tutorName, subject, duration } = await req.json();
-    logStep("Payment request received", { sessionId, amount, subject });
+    // Parse and validate input - only accept sessionId from client
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch {
+      throw new Error("Invalid JSON body");
+    }
+
+    const sessionId = validateSessionId(requestBody.sessionId);
+    logStep("Input validated", { sessionId });
+
+    // SECURITY: Fetch session from database and verify ownership
+    const { data: session, error: sessionError } = await supabaseClient
+      .from('sessions')
+      .select('id, student_id, tutor_id, price, subject, duration_minutes, status')
+      .eq('id', sessionId)
+      .single();
+
+    if (sessionError || !session) {
+      logStep("Session not found", { sessionId, error: sessionError?.message });
+      throw new Error("Session not found");
+    }
+
+    // SECURITY: Verify the authenticated user is the student for this session
+    if (session.student_id !== user.id) {
+      logStep("Unauthorized access attempt", { userId: user.id, sessionStudentId: session.student_id });
+      throw new Error("Unauthorized: You can only pay for your own sessions");
+    }
+
+    // SECURITY: Verify session status is appropriate for payment
+    if (session.status !== 'awaiting_payment' && session.status !== 'confirmed') {
+      logStep("Invalid session status for payment", { status: session.status });
+      throw new Error(`Session is not available for payment. Current status: ${session.status}`);
+    }
+
+    // SECURITY: Use database values, not client-provided values
+    const amount = session.price;
+    const duration = session.duration_minutes;
+    const subject = session.subject;
+
+    if (!amount || amount <= 0) {
+      throw new Error("Session does not have a valid price set");
+    }
+
+    // Get tutor name from profiles table (don't trust client)
+    const { data: tutorProfile } = await supabaseClient
+      .from('profiles')
+      .select('full_name')
+      .eq('user_id', session.tutor_id)
+      .single();
+
+    const tutorName = tutorProfile?.full_name || 'Tutor';
+
+    logStep("Session verified", { 
+      sessionId, 
+      amount, 
+      subject, 
+      duration,
+      tutorName,
+      status: session.status 
+    });
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -47,8 +130,8 @@ serve(async (req) => {
       logStep("Found existing Stripe customer", { customerId });
     }
 
-    // Create a checkout session with dynamic pricing
-    const session = await stripe.checkout.sessions.create({
+    // Create a checkout session with verified pricing from database
+    const stripeSession = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       payment_method_types: ['card'],
@@ -74,9 +157,9 @@ serve(async (req) => {
       },
     });
 
-    logStep("Checkout session created", { checkoutSessionId: session.id });
+    logStep("Checkout session created", { checkoutSessionId: stripeSession.id });
 
-    return new Response(JSON.stringify({ url: session.url }), {
+    return new Response(JSON.stringify({ url: stripeSession.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

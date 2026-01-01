@@ -162,32 +162,32 @@ const Sessions = () => {
   const handlePayment = async (session: Session) => {
     if (!user) return;
     
-    // Stripe requires minimum $0.50 USD
-    if (!session.price || session.price < 0.50) {
-      toast.error("Payment amount must be at least $0.50 (Stripe minimum)");
-      return;
-    }
-    
     setProcessingPayment(session.id);
     try {
+      // Only send sessionId - server validates and fetches all details from DB
       const { data, error } = await supabase.functions.invoke("create-session-payment", {
         body: {
           sessionId: session.id,
-          amount: session.price,
-          tutorName: session.tutor_name,
-          subject: session.subject,
-          duration: session.duration_minutes,
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific error messages from server
+        const errorMessage = error.message || "Failed to initiate payment";
+        throw new Error(errorMessage);
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       if (data?.url) {
         window.open(data.url, "_blank");
       }
     } catch (error) {
       console.error("Error creating payment:", error);
-      toast.error("Failed to initiate payment");
+      const message = error instanceof Error ? error.message : "Failed to initiate payment";
+      toast.error(message);
     } finally {
       setProcessingPayment(null);
     }
