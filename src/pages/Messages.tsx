@@ -68,12 +68,12 @@ const Messages = () => {
 
         if (error) throw error;
 
-        // Fetch profile info for other participants
+        // Fetch profile info for other participants using public_profiles view
         const withProfiles = await Promise.all(
           (convos || []).map(async (conv) => {
             const otherUserId = conv.participant_1 === user.id ? conv.participant_2 : conv.participant_1;
             const { data: profile } = await supabase
-              .from("profiles")
+              .from("public_profiles")
               .select("id, user_id, full_name, avatar_url")
               .eq("user_id", otherUserId)
               .maybeSingle();
@@ -103,7 +103,7 @@ const Messages = () => {
 
             if (!createError && newConvo) {
               const { data: profile } = await supabase
-                .from("profiles")
+                .from("public_profiles")
                 .select("id, user_id, full_name, avatar_url")
                 .eq("user_id", recipientId)
                 .maybeSingle();

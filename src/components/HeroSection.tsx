@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Star, Users, Award } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
@@ -45,9 +45,9 @@ const HeroSection = () => {
 
           {/* Subheadline */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Connect with expert tutors personalized to your learning style. 
-            Our AI matches you with the ideal mentor for one-on-one sessions 
-            that transform the way you learn.
+            Connecting struggling students with retired professors and advanced 
+            college students. Our AI matches you with the perfect mentor based on 
+            learning styles, personalities, and goals.
           </p>
 
           {/* Search Bar */}
@@ -67,33 +67,19 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 md:gap-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Users className="w-6 h-6 text-primary" />
+          {/* Slogan */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-card/80 border border-border backdrop-blur-sm shadow-soft">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                <Star className="w-6 h-6 text-primary fill-primary" />
               </div>
               <div className="text-left">
-                <p className="font-display font-bold text-2xl text-foreground">10K+</p>
-                <p className="text-sm text-muted-foreground">Expert Tutors</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                <Star className="w-6 h-6 text-accent fill-accent" />
-              </div>
-              <div className="text-left">
-                <p className="font-display font-bold text-2xl text-foreground">4.9/5</p>
-                <p className="text-sm text-muted-foreground">Average Rating</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
-                <Award className="w-6 h-6 text-secondary" />
-              </div>
-              <div className="text-left">
-                <p className="font-display font-bold text-2xl text-foreground">500K+</p>
-                <p className="text-sm text-muted-foreground">Sessions Completed</p>
+                <p className="font-display font-bold text-lg text-foreground">
+                  Where Bright Minds Meet
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Personalized learning. Real results.
+                </p>
               </div>
             </div>
           </div>
