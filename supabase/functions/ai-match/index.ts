@@ -6,6 +6,88 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation helpers
+const validateString = (value: unknown, fieldName: string, maxLength: number = 1000): string => {
+  if (value === undefined || value === null) return "";
+  if (typeof value !== 'string') {
+    throw new Error(`${fieldName} must be a string`);
+  }
+  if (value.length > maxLength) {
+    throw new Error(`${fieldName} must be less than ${maxLength} characters`);
+  }
+  return value;
+};
+
+const validateStringArray = (value: unknown, fieldName: string, maxItems: number = 50): string[] => {
+  if (value === undefined || value === null) return [];
+  if (!Array.isArray(value)) {
+    throw new Error(`${fieldName} must be an array`);
+  }
+  if (value.length > maxItems) {
+    throw new Error(`${fieldName} must have less than ${maxItems} items`);
+  }
+  return value.map((item, i) => {
+    if (typeof item !== 'string') {
+      throw new Error(`${fieldName}[${i}] must be a string`);
+    }
+    if (item.length > 200) {
+      throw new Error(`${fieldName}[${i}] must be less than 200 characters`);
+    }
+    return item;
+  });
+};
+
+const validateStudentProfile = (profile: unknown) => {
+  if (!profile || typeof profile !== 'object') {
+    throw new Error('studentProfile must be an object');
+  }
+  const p = profile as Record<string, unknown>;
+  return {
+    background: validateString(p.background, 'background', 500),
+    personality: validateString(p.personality, 'personality', 500),
+    learning_goals: validateString(p.learning_goals, 'learning_goals', 500),
+    learning_style: validateString(p.learning_style, 'learning_style', 200),
+    study_habits: validateString(p.study_habits, 'study_habits', 500),
+    subjects_interested: validateStringArray(p.subjects_interested, 'subjects_interested', 20),
+  };
+};
+
+const validateTutor = (tutor: unknown, index: number) => {
+  if (!tutor || typeof tutor !== 'object') {
+    throw new Error(`tutors[${index}] must be an object`);
+  }
+  const t = tutor as Record<string, unknown>;
+  
+  // Validate user_id is a valid UUID
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (typeof t.user_id !== 'string' || !uuidRegex.test(t.user_id)) {
+    throw new Error(`tutors[${index}].user_id must be a valid UUID`);
+  }
+
+  return {
+    user_id: t.user_id,
+    full_name: validateString(t.full_name, `tutors[${index}].full_name`, 100),
+    subjects: validateStringArray(t.subjects, `tutors[${index}].subjects`, 20),
+    experience_years: typeof t.experience_years === 'number' ? Math.min(Math.max(0, t.experience_years), 100) : 0,
+    teaching_style: validateString(t.teaching_style, `tutors[${index}].teaching_style`, 500),
+    education: validateString(t.education, `tutors[${index}].education`, 500),
+    rating: typeof t.rating === 'number' ? Math.min(Math.max(0, t.rating), 5) : 0,
+  };
+};
+
+const validateTutors = (tutors: unknown): ReturnType<typeof validateTutor>[] => {
+  if (!Array.isArray(tutors)) {
+    throw new Error('tutors must be an array');
+  }
+  if (tutors.length === 0) {
+    throw new Error('tutors array cannot be empty');
+  }
+  if (tutors.length > 100) {
+    throw new Error('tutors array must have less than 100 items');
+  }
+  return tutors.map((t, i) => validateTutor(t, i));
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -22,14 +104,36 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { studentProfile, tutors } = await req.json();
-
-    if (!studentProfile || !tutors || tutors.length === 0) {
+    // Parse and validate input
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch {
       return new Response(
-        JSON.stringify({ error: "Missing student profile or tutors data" }),
+        JSON.stringify({ error: "Invalid JSON body" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Validate inputs
+    let studentProfile;
+    let tutors;
+    try {
+      studentProfile = validateStudentProfile(requestBody.studentProfile);
+      tutors = validateTutors(requestBody.tutors);
+    } catch (validationError) {
+      const errorMessage = validationError instanceof Error ? validationError.message : "Validation error";
+      console.error("Input validation failed:", errorMessage);
+      return new Response(
+        JSON.stringify({ error: errorMessage }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Input validated successfully", { 
+      studentProfileFields: Object.keys(studentProfile), 
+      tutorCount: tutors.length 
+    });
 
     const systemPrompt = `You are an AI tutor matching assistant for Bright Minds Match. Your task is to analyze a student's profile and match them with the best tutors based on compatibility.
 
@@ -65,7 +169,7 @@ Return your response as valid JSON in this exact format:
 - Subjects Interested: ${(studentProfile.subjects_interested || []).join(", ") || "Not specified"}
 
 Available Tutors:
-${tutors.map((t: any, i: number) => `
+${tutors.map((t, i: number) => `
 Tutor ${i + 1}:
 - ID: ${t.user_id}
 - Name: ${t.full_name}
