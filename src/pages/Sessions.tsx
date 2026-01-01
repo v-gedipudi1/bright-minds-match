@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Session {
@@ -32,6 +33,8 @@ const Sessions = () => {
   const [userRole, setUserRole] = useState<"student" | "tutor" | null>(null);
   const [updatingSession, setUpdatingSession] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
+  const [editingPrice, setEditingPrice] = useState<string | null>(null);
+  const [newPrice, setNewPrice] = useState<string>("");
 
   // Handle payment success/cancel from URL params
   useEffect(() => {
@@ -184,6 +187,39 @@ const Sessions = () => {
     }
   };
 
+  const handleEditPrice = (session: Session) => {
+    setEditingPrice(session.id);
+    setNewPrice(session.price?.toString() || "0");
+  };
+
+  const handleSavePrice = async (sessionId: string) => {
+    const priceValue = parseFloat(newPrice);
+    if (isNaN(priceValue) || priceValue < 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("sessions")
+        .update({ price: priceValue })
+        .eq("id", sessionId);
+
+      if (error) throw error;
+
+      setSessions((prev) =>
+        prev.map((s) => (s.id === sessionId ? { ...s, price: priceValue } : s))
+      );
+      toast.success("Price updated successfully");
+    } catch (error) {
+      console.error("Error updating price:", error);
+      toast.error("Failed to update price");
+    } finally {
+      setEditingPrice(null);
+      setNewPrice("");
+    }
+  };
+
   const upcomingSessions = sessions.filter(
     (s) => s.status === "confirmed" || s.status === "pending" || s.status === "awaiting_payment"
   );
@@ -298,6 +334,49 @@ const Sessions = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      {/* Tutor: Editable price for pending/awaiting_payment sessions */}
+                      {userRole === "tutor" && (session.status === "pending" || session.status === "awaiting_payment") && (
+                        editingPrice === session.id ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm">$</span>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={newPrice}
+                              onChange={(e) => setNewPrice(e.target.value)}
+                              className="w-20 h-8 text-sm"
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleSavePrice(session.id)}
+                            >
+                              <Check className="w-4 h-4 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              onClick={() => setEditingPrice(null)}
+                            >
+                              <X className="w-4 h-4 text-red-600" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="gap-1 text-muted-foreground"
+                            onClick={() => handleEditPrice(session)}
+                          >
+                            <Pencil className="w-3 h-3" />
+                            ${session.price?.toFixed(2)}
+                          </Button>
+                        )
+                      )}
+                      
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                           session.status === "confirmed"
