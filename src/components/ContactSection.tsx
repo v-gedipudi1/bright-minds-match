@@ -18,27 +18,27 @@ const ContactSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.email || !formData.message) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setSending(true);
-    
+
     try {
       // Create mailto link and open email client
-      const mailtoLink = `mailto:brightmindsmatch@gmail.com?subject=${encodeURIComponent(
-        formData.subject || `Contact from ${formData.name}`
+      const mailtoLink = `mailto:venniged1@gmail.com?subject=${encodeURIComponent(
+        formData.subject || `Contact from ${formData.name}`,
       )}&body=${encodeURIComponent(
-        `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+        `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`,
       )}`;
-      
+
       window.location.href = mailtoLink;
-      
+
       setSent(true);
       toast.success("Opening your email client...");
-      
+
       // Reset form after a delay
       setTimeout(() => {
         setFormData({ name: "", email: "", subject: "", message: "" });
@@ -61,9 +61,7 @@ const ContactSection = () => {
             <Mail className="w-4 h-4 text-accent" />
             <span className="text-sm font-medium text-foreground">Get In Touch</span>
           </div>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Contact Us
-          </h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Contact Us</h2>
           <p className="text-muted-foreground text-lg">
             Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </p>
@@ -77,20 +75,14 @@ const ContactSection = () => {
                   <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 className="font-display text-xl font-bold text-foreground mb-2">
-                    Email Client Opened!
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Please send the email from your mail application.
-                  </p>
+                  <h3 className="font-display text-xl font-bold text-foreground mb-2">Email Client Opened!</h3>
+                  <p className="text-muted-foreground">Please send the email from your mail application.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Your Name *
-                      </label>
+                      <label className="block text-sm font-medium text-foreground mb-2">Your Name *</label>
                       <Input
                         type="text"
                         placeholder="John Doe"
@@ -100,9 +92,7 @@ const ContactSection = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Your Email *
-                      </label>
+                      <label className="block text-sm font-medium text-foreground mb-2">Your Email *</label>
                       <Input
                         type="email"
                         placeholder="john@example.com"
@@ -112,11 +102,9 @@ const ContactSection = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Subject
-                    </label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Subject</label>
                     <Input
                       type="text"
                       placeholder="How can we help?"
@@ -126,9 +114,7 @@ const ContactSection = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Message *
-                    </label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Message *</label>
                     <Textarea
                       placeholder="Tell us more about your inquiry..."
                       value={formData.message}
@@ -138,12 +124,7 @@ const ContactSection = () => {
                     />
                   </div>
 
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full"
-                    disabled={sending}
-                  >
+                  <Button type="submit" size="lg" className="w-full" disabled={sending}>
                     {sending ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -162,10 +143,7 @@ const ContactSection = () => {
               <div className="mt-8 pt-8 border-t border-border text-center">
                 <p className="text-sm text-muted-foreground">
                   Or email us directly at{" "}
-                  <a
-                    href="mailto:brightmindsmatch@gmail.com"
-                    className="text-primary hover:underline font-medium"
-                  >
+                  <a href="mailto:venniged1@gmail.com" className="text-primary hover:underline font-medium">
                     brightmindsmatch@gmail.com
                   </a>
                 </p>
