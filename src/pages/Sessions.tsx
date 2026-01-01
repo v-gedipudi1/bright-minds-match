@@ -162,6 +162,12 @@ const Sessions = () => {
   const handlePayment = async (session: Session) => {
     if (!user) return;
     
+    // Stripe requires minimum $0.50 USD
+    if (!session.price || session.price < 0.50) {
+      toast.error("Payment amount must be at least $0.50 (Stripe minimum)");
+      return;
+    }
+    
     setProcessingPayment(session.id);
     try {
       const { data, error } = await supabase.functions.invoke("create-session-payment", {
@@ -194,8 +200,8 @@ const Sessions = () => {
 
   const handleSavePrice = async (sessionId: string) => {
     const priceValue = parseFloat(newPrice);
-    if (isNaN(priceValue) || priceValue < 0) {
-      toast.error("Please enter a valid price");
+    if (isNaN(priceValue) || priceValue < 0.50) {
+      toast.error("Price must be at least $0.50 (Stripe minimum)");
       return;
     }
 
