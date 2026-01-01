@@ -10,10 +10,11 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const navLinks = [
-    { name: "Find Tutors", href: "#tutors" },
     { name: "How It Works", href: "#how-it-works" },
     { name: "Subjects", href: "#subjects" },
     { name: "AI Matching", href: "#ai-matching" },
+    { name: "About", href: "#about" },
+    { name: "Contact", href: "#contact" },
   ];
 
   const handleSignOut = async () => {

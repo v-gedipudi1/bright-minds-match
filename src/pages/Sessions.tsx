@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X } from "lucide-react";
+import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X, Video, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface Session {
@@ -16,6 +16,7 @@ interface Session {
   status: string;
   notes: string | null;
   price: number | null;
+  meeting_link: string | null;
   tutor_id: string;
   student_id: string;
   tutor_name?: string;
@@ -35,6 +36,8 @@ const Sessions = () => {
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
   const [editingPrice, setEditingPrice] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>("");
+  const [editingMeetingLink, setEditingMeetingLink] = useState<string | null>(null);
+  const [newMeetingLink, setNewMeetingLink] = useState<string>("");
 
   // Handle payment success/cancel from URL params
   useEffect(() => {
@@ -92,17 +95,17 @@ const Sessions = () => {
 
         if (error) throw error;
 
-        // Enrich with profile data
+        // Enrich with profile data using public_profiles view
         const enrichedSessions = await Promise.all(
           (sessionsData || []).map(async (session) => {
             const { data: tutorProfile } = await supabase
-              .from("profiles")
+              .from("public_profiles")
               .select("full_name, avatar_url")
               .eq("user_id", session.tutor_id)
               .maybeSingle();
 
             const { data: studentProfile } = await supabase
-              .from("profiles")
+              .from("public_profiles")
               .select("full_name, avatar_url")
               .eq("user_id", session.student_id)
               .maybeSingle();
@@ -223,6 +226,38 @@ const Sessions = () => {
     } finally {
       setEditingPrice(null);
       setNewPrice("");
+    }
+  };
+
+  const handleEditMeetingLink = (session: Session) => {
+    setEditingMeetingLink(session.id);
+    setNewMeetingLink(session.meeting_link || "");
+  };
+
+  const handleSaveMeetingLink = async (sessionId: string) => {
+    if (!newMeetingLink.trim()) {
+      toast.error("Please enter a meeting link");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("sessions")
+        .update({ meeting_link: newMeetingLink.trim() })
+        .eq("id", sessionId);
+
+      if (error) throw error;
+
+      setSessions((prev) =>
+        prev.map((s) => (s.id === sessionId ? { ...s, meeting_link: newMeetingLink.trim() } : s))
+      );
+      toast.success("Meeting link added successfully");
+    } catch (error) {
+      console.error("Error updating meeting link:", error);
+      toast.error("Failed to update meeting link");
+    } finally {
+      setEditingMeetingLink(null);
+      setNewMeetingLink("");
     }
   };
 
@@ -416,6 +451,20 @@ const Sessions = () => {
                         </Button>
                       )}
                       
+                      {/* Student: Join meeting button when confirmed and has meeting link */}
+                      {userRole === "student" && session.status === "confirmed" && session.meeting_link && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1"
+                          onClick={() => window.open(session.meeting_link!, "_blank")}
+                        >
+                          <Video className="w-4 h-4" />
+                          Join Meeting
+                          <ExternalLink className="w-3 h-3" />
+                        </Button>
+                      )}
+                      
                       {/* Student: Message tutor button */}
                       {userRole === "student" && (
                         <Button
@@ -436,6 +485,47 @@ const Sessions = () => {
                         >
                           <MessageSquare className="w-4 h-4" />
                         </Button>
+                      )}
+                      
+                      {/* Tutor: Add/Edit meeting link for confirmed sessions */}
+                      {userRole === "tutor" && session.status === "confirmed" && (
+                        editingMeetingLink === session.id ? (
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="url"
+                              placeholder="https://zoom.us/j/..."
+                              value={newMeetingLink}
+                              onChange={(e) => setNewMeetingLink(e.target.value)}
+                              className="w-48 h-8 text-sm"
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleSaveMeetingLink(session.id)}
+                            >
+                              <Check className="w-4 h-4 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              onClick={() => setEditingMeetingLink(null)}
+                            >
+                              <X className="w-4 h-4 text-red-600" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant={session.meeting_link ? "ghost" : "outline"}
+                            className="gap-1"
+                            onClick={() => handleEditMeetingLink(session)}
+                          >
+                            <Video className="w-4 h-4" />
+                            {session.meeting_link ? "Edit Link" : "Add Meeting Link"}
+                          </Button>
+                        )
                       )}
                       
                       {/* Tutor: Accept/Decline buttons for pending sessions */}
