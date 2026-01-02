@@ -23,11 +23,13 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Get tutors with paid session counts along with their profile info
+        // Get tutors with their profile info using a direct RPC-style query
+        // First get tutor profiles
         const { data: tutorData, error: tutorError } = await supabase
           .from("tutor_profiles")
           .select("user_id, total_sessions, rating, subjects")
           .order("total_sessions", { ascending: false })
+          .order("rating", { ascending: false })
           .limit(50);
 
         if (tutorError) throw tutorError;
@@ -35,24 +37,38 @@ const Leaderboard = () => {
         // Get all tutor user_ids
         const tutorUserIds = (tutorData || []).map(t => t.user_id);
         
-        // Fetch profiles from public_profiles view (accessible without auth)
-        const { data: publicProfiles } = await supabase
+        // Fetch from public_profiles view
+        const { data: publicProfiles, error: profilesError } = await supabase
           .from("public_profiles")
           .select("user_id, full_name, avatar_url")
           .in("user_id", tutorUserIds);
         
-        const profilesData = publicProfiles || [];
+        console.log("Tutor IDs:", tutorUserIds);
+        console.log("Public profiles data:", publicProfiles);
+        console.log("Profiles error:", profilesError);
 
-        // Create a map for quick lookup
-        const profilesMap = new Map(
-          profilesData.map(p => [p.user_id, { full_name: p.full_name, avatar_url: p.avatar_url }])
-        );
+        // Create a map for quick lookup - ensure we handle the data correctly
+        const profilesMap = new Map<string, { full_name: string | null; avatar_url: string | null }>();
+        if (publicProfiles) {
+          publicProfiles.forEach(p => {
+            if (p.user_id) {
+              profilesMap.set(p.user_id, { 
+                full_name: p.full_name || null, 
+                avatar_url: p.avatar_url || null 
+              });
+            }
+          });
+        }
 
         // Combine tutor data with profiles
-        const tutorsWithProfiles = (tutorData || []).map(tutor => ({
-          ...tutor,
-          profile: profilesMap.get(tutor.user_id) || null,
-        }));
+        const tutorsWithProfiles = (tutorData || []).map(tutor => {
+          const profile = profilesMap.get(tutor.user_id);
+          console.log(`Tutor ${tutor.user_id} profile:`, profile);
+          return {
+            ...tutor,
+            profile: profile || null,
+          };
+        });
 
         setTutors(tutorsWithProfiles);
       } catch (error) {
