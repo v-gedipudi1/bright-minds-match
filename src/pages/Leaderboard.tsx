@@ -23,7 +23,7 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Get tutors with paid session counts
+        // Get tutors with paid session counts along with their profile info
         const { data: tutorData, error: tutorError } = await supabase
           .from("tutor_profiles")
           .select("user_id, total_sessions, rating, subjects")
@@ -35,15 +35,28 @@ const Leaderboard = () => {
         // Get all tutor user_ids
         const tutorUserIds = (tutorData || []).map(t => t.user_id);
         
-        // Fetch all profiles in a single query using public_profiles view
-        const { data: profilesData } = await supabase
-          .from("public_profiles")
+        // Fetch profiles - try profiles table first (for authenticated users)
+        let profilesData: { user_id: string; full_name: string | null; avatar_url: string | null }[] = [];
+        
+        const { data: profiles, error: profilesError } = await supabase
+          .from("profiles")
           .select("user_id, full_name, avatar_url")
           .in("user_id", tutorUserIds);
+        
+        if (!profilesError && profiles) {
+          profilesData = profiles;
+        } else {
+          // Fallback to public_profiles view
+          const { data: publicProfiles } = await supabase
+            .from("public_profiles")
+            .select("user_id, full_name, avatar_url")
+            .in("user_id", tutorUserIds);
+          profilesData = publicProfiles || [];
+        }
 
         // Create a map for quick lookup
         const profilesMap = new Map(
-          (profilesData || []).map(p => [p.user_id, p])
+          profilesData.map(p => [p.user_id, { full_name: p.full_name, avatar_url: p.avatar_url }])
         );
 
         // Combine tutor data with profiles
