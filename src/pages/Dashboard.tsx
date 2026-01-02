@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings } from "lucide-react";
+import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -136,15 +136,15 @@ const Dashboard = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {isStudent && (
             <>
-              <Link to="/find-tutors">
+              <Link to="/leaderboard">
                 <Card className="hover:shadow-medium transition-shadow cursor-pointer group">
                   <CardContent className="p-6 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <BookOpen className="w-6 h-6 text-primary" />
+                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
+                      <Trophy className="w-6 h-6 text-amber-500" />
                     </div>
                     <div>
-                      <p className="font-semibold text-foreground">Find Tutors</p>
-                      <p className="text-sm text-muted-foreground">Browse experts</p>
+                      <p className="font-semibold text-foreground">Leaderboard</p>
+                      <p className="text-sm text-muted-foreground">Top tutors</p>
                     </div>
                   </CardContent>
                 </Card>
