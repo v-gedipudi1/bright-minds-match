@@ -32,21 +32,25 @@ const Leaderboard = () => {
 
         if (tutorError) throw tutorError;
 
-        // Fetch profile info for each tutor from profiles table
-        const tutorsWithProfiles = await Promise.all(
-          (tutorData || []).map(async (tutor) => {
-            const { data: profileData } = await supabase
-              .from("profiles")
-              .select("full_name, avatar_url")
-              .eq("user_id", tutor.user_id)
-              .maybeSingle();
+        // Get all tutor user_ids
+        const tutorUserIds = (tutorData || []).map(t => t.user_id);
+        
+        // Fetch all profiles in a single query using public_profiles view
+        const { data: profilesData } = await supabase
+          .from("public_profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", tutorUserIds);
 
-            return {
-              ...tutor,
-              profile: profileData,
-            };
-          })
+        // Create a map for quick lookup
+        const profilesMap = new Map(
+          (profilesData || []).map(p => [p.user_id, p])
         );
+
+        // Combine tutor data with profiles
+        const tutorsWithProfiles = (tutorData || []).map(tutor => ({
+          ...tutor,
+          profile: profilesMap.get(tutor.user_id) || null,
+        }));
 
         setTutors(tutorsWithProfiles);
       } catch (error) {
