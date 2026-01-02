@@ -96,7 +96,7 @@ const TutorReviews = ({ tutorId }: TutorReviewsProps) => {
         .select("id")
         .eq("student_id", user.id)
         .eq("tutor_id", tutorId)
-        .eq("status", "paid")
+        .eq("status", "confirmed")
         .limit(1);
 
       setUserHasSession((data?.length || 0) > 0);
@@ -124,7 +124,7 @@ const TutorReviews = ({ tutorId }: TutorReviewsProps) => {
         .select("id")
         .eq("student_id", user.id)
         .eq("tutor_id", tutorId)
-        .eq("status", "paid")
+        .eq("status", "confirmed")
         .limit(1)
         .single();
 
