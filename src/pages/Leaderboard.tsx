@@ -35,24 +35,13 @@ const Leaderboard = () => {
         // Get all tutor user_ids
         const tutorUserIds = (tutorData || []).map(t => t.user_id);
         
-        // Fetch profiles - try profiles table first (for authenticated users)
-        let profilesData: { user_id: string; full_name: string | null; avatar_url: string | null }[] = [];
-        
-        const { data: profiles, error: profilesError } = await supabase
-          .from("profiles")
+        // Fetch profiles from public_profiles view (accessible without auth)
+        const { data: publicProfiles } = await supabase
+          .from("public_profiles")
           .select("user_id, full_name, avatar_url")
           .in("user_id", tutorUserIds);
         
-        if (!profilesError && profiles) {
-          profilesData = profiles;
-        } else {
-          // Fallback to public_profiles view
-          const { data: publicProfiles } = await supabase
-            .from("public_profiles")
-            .select("user_id, full_name, avatar_url")
-            .in("user_id", tutorUserIds);
-          profilesData = publicProfiles || [];
-        }
+        const profilesData = publicProfiles || [];
 
         // Create a map for quick lookup
         const profilesMap = new Map(
