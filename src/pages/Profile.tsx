@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, ArrowLeft, Camera, Loader2, Save, User } from "lucide-react";
+import DeleteAccountSection from "@/components/DeleteAccountSection";
 import { toast } from "sonner";
 import AvailabilityScheduler, { WeeklyAvailability, getDefaultAvailability } from "@/components/AvailabilityScheduler";
 
@@ -483,6 +484,13 @@ const Profile = () => {
             </>
           )}
         </Button>
+
+        {/* Delete Account Section */}
+        {profile?.role && (
+          <div className="mt-8">
+            <DeleteAccountSection role={profile.role} />
+          </div>
+        )}
       </main>
     </div>
   );

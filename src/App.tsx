@@ -13,6 +13,7 @@ import AIMatching from "./pages/AIMatching";
 import BookSession from "./pages/BookSession";
 import Sessions from "./pages/Sessions";
 import Messages from "./pages/Messages";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/book/:tutorId" element={<BookSession />} />
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
