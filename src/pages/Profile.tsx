@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, ArrowLeft, Camera, Loader2, Save, User } from "lucide-react";
+import { Sparkles, ArrowLeft, Camera, Loader2, Save, User, Star } from "lucide-react";
 import DeleteAccountSection from "@/components/DeleteAccountSection";
+import ReviewTutorDialog from "@/components/ReviewTutorDialog";
 import { toast } from "sonner";
 import AvailabilityScheduler, { WeeklyAvailability, getDefaultAvailability } from "@/components/AvailabilityScheduler";
 
@@ -51,6 +52,7 @@ const Profile = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -403,72 +405,98 @@ const Profile = () => {
             </div>
           </>
         ) : (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Learning Profile</CardTitle>
-              <CardDescription>Help us find the perfect tutor for you</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="subjectsInterested">Subjects Interested (comma-separated)</Label>
-                <Input
-                  id="subjectsInterested"
-                  value={subjectsInterested}
-                  onChange={(e) => setSubjectsInterested(e.target.value)}
-                  placeholder="Mathematics, Physics, Programming"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="learningGoals">Learning Goals</Label>
-                <Textarea
-                  id="learningGoals"
-                  value={learningGoals}
-                  onChange={(e) => setLearningGoals(e.target.value)}
-                  placeholder="What do you want to achieve?"
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="learningStyle">Learning Style</Label>
-                <Input
-                  id="learningStyle"
-                  value={learningStyle}
-                  onChange={(e) => setLearningStyle(e.target.value)}
-                  placeholder="Visual, auditory, hands-on, reading/writing..."
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="background">Background</Label>
-                <Textarea
-                  id="background"
-                  value={background}
-                  onChange={(e) => setBackground(e.target.value)}
-                  placeholder="Tell us about your educational background..."
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="personality">Personality</Label>
-                <Textarea
-                  id="personality"
-                  value={personality}
-                  onChange={(e) => setPersonality(e.target.value)}
-                  placeholder="Describe your personality and how you prefer to interact..."
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="studyHabits">Study Habits</Label>
-                <Textarea
-                  id="studyHabits"
-                  value={studyHabits}
-                  onChange={(e) => setStudyHabits(e.target.value)}
-                  placeholder="When and how do you prefer to study?"
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <>
+            {/* Review a Tutor Card */}
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Star className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">Review a Tutor</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Share your experience with tutors you've worked with
+                      </p>
+                    </div>
+                  </div>
+                  <Button onClick={() => setShowReviewDialog(true)}>
+                    Write Review
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Learning Profile</CardTitle>
+                <CardDescription>Help us find the perfect tutor for you</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="subjectsInterested">Subjects Interested (comma-separated)</Label>
+                  <Input
+                    id="subjectsInterested"
+                    value={subjectsInterested}
+                    onChange={(e) => setSubjectsInterested(e.target.value)}
+                    placeholder="Mathematics, Physics, Programming"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="learningGoals">Learning Goals</Label>
+                  <Textarea
+                    id="learningGoals"
+                    value={learningGoals}
+                    onChange={(e) => setLearningGoals(e.target.value)}
+                    placeholder="What do you want to achieve?"
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="learningStyle">Learning Style</Label>
+                  <Input
+                    id="learningStyle"
+                    value={learningStyle}
+                    onChange={(e) => setLearningStyle(e.target.value)}
+                    placeholder="Visual, auditory, hands-on, reading/writing..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="background">Background</Label>
+                  <Textarea
+                    id="background"
+                    value={background}
+                    onChange={(e) => setBackground(e.target.value)}
+                    placeholder="Tell us about your educational background..."
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="personality">Personality</Label>
+                  <Textarea
+                    id="personality"
+                    value={personality}
+                    onChange={(e) => setPersonality(e.target.value)}
+                    placeholder="Describe your personality and how you prefer to interact..."
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="studyHabits">Study Habits</Label>
+                  <Textarea
+                    id="studyHabits"
+                    value={studyHabits}
+                    onChange={(e) => setStudyHabits(e.target.value)}
+                    placeholder="When and how do you prefer to study?"
+                    rows={3}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <ReviewTutorDialog open={showReviewDialog} onOpenChange={setShowReviewDialog} />
+          </>
         )}
 
         <Button onClick={handleSave} disabled={saving} className="w-full">

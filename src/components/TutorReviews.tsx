@@ -56,11 +56,11 @@ const TutorReviews = ({ tutorId }: TutorReviewsProps) => {
 
       if (error) throw error;
 
-      // Fetch student profiles for each review
+      // Fetch student profiles for each review from profiles table
       const reviewsWithProfiles = await Promise.all(
         (reviewsData || []).map(async (review) => {
           const { data: profileData } = await supabase
-            .from("public_profiles")
+            .from("profiles")
             .select("full_name, avatar_url")
             .eq("user_id", review.student_id)
             .maybeSingle();
