@@ -32,11 +32,11 @@ const Leaderboard = () => {
 
         if (tutorError) throw tutorError;
 
-        // Fetch profile info for each tutor
+        // Fetch profile info for each tutor from profiles table
         const tutorsWithProfiles = await Promise.all(
           (tutorData || []).map(async (tutor) => {
             const { data: profileData } = await supabase
-              .from("public_profiles")
+              .from("profiles")
               .select("full_name, avatar_url")
               .eq("user_id", tutor.user_id)
               .maybeSingle();
