@@ -55,12 +55,12 @@ const ReviewTutorDialog = ({ open, onOpenChange }: ReviewTutorDialogProps) => {
     setLoading(true);
 
     try {
-      // Get all paid sessions for the student
+      // Get all paid/confirmed sessions for the student
       const { data: sessionsData, error: sessionsError } = await supabase
         .from("sessions")
         .select("id, tutor_id, subject, scheduled_at")
         .eq("student_id", user.id)
-        .eq("status", "paid")
+        .eq("status", "confirmed")
         .order("scheduled_at", { ascending: false });
 
       if (sessionsError) throw sessionsError;
