@@ -18,8 +18,8 @@ const benefits = [
   },
   {
     icon: CheckCircle,
-    title: "95% Goes to Tutors",
-    description: "Tutors keep 95% of every session fee earned",
+    title: "92% Goes to Tutors",
+    description: "Tutors keep 92% of every session fee earned",
   },
 ];
 
