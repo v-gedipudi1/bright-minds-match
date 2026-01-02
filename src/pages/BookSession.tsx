@@ -20,6 +20,14 @@ interface TimeSlot {
   end: string;
 }
 
+// Convert 24hr time to 12hr format
+const formatTime12hr = (time24: string): string => {
+  const [hours, minutes] = time24.split(":").map(Number);
+  const period = hours >= 12 ? "PM" : "AM";
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${String(minutes).padStart(2, "0")} ${period}`;
+};
+
 interface TutorInfo {
   user_id: string;
   full_name: string;
@@ -416,7 +424,7 @@ const BookSession = () => {
                             selectedTime === time && "ring-2 ring-primary ring-offset-2"
                           )}
                         >
-                          {time}
+                          {formatTime12hr(time)}
                         </Button>
                       ))}
                     </div>
