@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Star } from "lucide-react";
+import { Search, Star, Users } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
@@ -65,6 +65,16 @@ const HeroSection = () => {
             <Button variant="hero" size="lg" onClick={handleSearch}>
               Find My Tutor
             </Button>
+          </div>
+
+          {/* Browse Tutors Button */}
+          <div className="flex justify-center mb-12 animate-fade-in" style={{ animationDelay: '0.35s' }}>
+            <Link to="/find-tutors">
+              <Button variant="outline" size="lg" className="gap-2">
+                <Users className="w-5 h-5" />
+                Browse All Tutors
+              </Button>
+            </Link>
           </div>
 
           {/* Slogan */}
