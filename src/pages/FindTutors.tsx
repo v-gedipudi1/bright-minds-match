@@ -24,17 +24,11 @@ interface Tutor {
 }
 
 const FindTutors = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [tutors, setTutors] = useState<Tutor[]>([]);
   const [loadingTutors, setLoadingTutors] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -57,7 +51,7 @@ const FindTutors = () => {
         const tutorsWithProfiles = await Promise.all(
           (data || []).map(async (tutor) => {
             const { data: profileData } = await supabase
-              .from("profiles")
+              .from("public_profiles")
               .select("full_name, avatar_url, bio")
               .eq("user_id", tutor.user_id)
               .maybeSingle();
@@ -90,14 +84,6 @@ const FindTutors = () => {
     );
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -111,12 +97,22 @@ const FindTutors = () => {
               Bright<span className="text-gradient-primary">Minds</span>
             </span>
           </Link>
-          <Link to="/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {user ? (
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button variant="default" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
