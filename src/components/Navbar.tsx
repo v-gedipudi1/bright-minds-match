@@ -11,11 +11,12 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const navLinks = [
-    { name: "How It Works", href: "#how-it-works" },
-    { name: "Subjects", href: "#subjects" },
-    { name: "AI Matching", href: "#ai-matching" },
-    { name: "About", href: "#about" },
-    { name: "Contact", href: "#contact" },
+    { name: "Browse Tutors", href: "/find-tutors", isRoute: true },
+    { name: "How It Works", href: "#how-it-works", isRoute: false },
+    { name: "Subjects", href: "#subjects", isRoute: false },
+    { name: "AI Matching", href: "#ai-matching", isRoute: false },
+    { name: "About", href: "#about", isRoute: false },
+    { name: "Contact", href: "#contact", isRoute: false },
   ];
 
   const handleSignOut = async () => {
@@ -40,13 +41,23 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
-              >
-                {link.name}
-              </a>
+              link.isRoute ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
+                >
+                  {link.name}
+                </a>
+              )
             ))}
           </div>
 
@@ -82,14 +93,25 @@ const Navbar = () => {
           <div className="md:hidden py-4 border-t border-border animate-fade-in">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-primary font-medium py-2 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.name}
-                </a>
+                link.isRoute ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="text-muted-foreground hover:text-primary font-medium py-2 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-muted-foreground hover:text-primary font-medium py-2 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
                 {user ? (
