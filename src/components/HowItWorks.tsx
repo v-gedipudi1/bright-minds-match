@@ -10,7 +10,7 @@ const steps = [
   {
     icon: Sparkles,
     title: "AI Finds Your Match",
-    description: "Our AI analyzes thousands of tutors to find the perfect match based on expertise, teaching style, and availability.",
+    description: "Our AI analyzes all of our registered tutors to find the perfect match based on expertise, teaching style, and availability.",
     color: "accent",
   },
   {
