@@ -11,7 +11,6 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const navLinks = [
-    { name: "Browse Tutors", href: "/find-tutors", isRoute: true },
     { name: "Leaderboard", href: "/leaderboard", isRoute: true },
     { name: "How It Works", href: "#how-it-works", isRoute: false },
     { name: "Subjects", href: "#subjects", isRoute: false },
