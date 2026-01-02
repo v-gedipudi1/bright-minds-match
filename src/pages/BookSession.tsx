@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sparkles, ArrowLeft, Star, Clock, Calendar as CalendarIcon, Loader2, User, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
+import TutorReviews from "@/components/TutorReviews";
 import { format, getDay } from "date-fns";
 import { toast } from "sonner";
 import { WeeklyAvailability } from "@/components/AvailabilityScheduler";
@@ -492,6 +493,11 @@ const BookSession = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Reviews Section */}
+          <div className="lg:col-span-3">
+            <TutorReviews tutorId={tutor.user_id} />
+          </div>
         </div>
       </main>
     </div>
