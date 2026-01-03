@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, ArrowLeft, Trophy, Medal, Star, User, Loader2 } from "lucide-react";
-
 interface LeaderboardTutor {
   user_id: string;
   total_sessions: number;
@@ -17,6 +17,7 @@ interface LeaderboardTutor {
 }
 
 const Leaderboard = () => {
+  const { user } = useAuth();
   const [tutors, setTutors] = useState<LeaderboardTutor[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,9 +44,7 @@ const Leaderboard = () => {
           .select("user_id, full_name, avatar_url")
           .in("user_id", tutorUserIds);
         
-        console.log("Tutor IDs:", tutorUserIds);
-        console.log("Public profiles data:", publicProfiles);
-        console.log("Profiles error:", profilesError);
+        if (profilesError) throw profilesError;
 
         // Create a map for quick lookup - ensure we handle the data correctly
         const profilesMap = new Map<string, { full_name: string | null; avatar_url: string | null }>();
@@ -61,14 +60,10 @@ const Leaderboard = () => {
         }
 
         // Combine tutor data with profiles
-        const tutorsWithProfiles = (tutorData || []).map(tutor => {
-          const profile = profilesMap.get(tutor.user_id);
-          console.log(`Tutor ${tutor.user_id} profile:`, profile);
-          return {
-            ...tutor,
-            profile: profile || null,
-          };
-        });
+        const tutorsWithProfiles = (tutorData || []).map(tutor => ({
+          ...tutor,
+          profile: profilesMap.get(tutor.user_id) || null,
+        }));
 
         setTutors(tutorsWithProfiles);
       } catch (error) {
@@ -108,12 +103,20 @@ const Leaderboard = () => {
               Bright<span className="text-gradient-primary">Minds</span>
             </span>
           </Link>
-          <Link to="/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Dashboard
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/dashboard">
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/auth">
+              <Button variant="default" size="sm">
+                Sign In
+              </Button>
+            </Link>
+          )}
         </div>
       </header>
 
