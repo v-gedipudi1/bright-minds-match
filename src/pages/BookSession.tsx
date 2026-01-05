@@ -370,6 +370,20 @@ const BookSession = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Recommendation to message first */}
+              <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-950/30 dark:border-blue-800">
+                <div className="flex items-start gap-3">
+                  <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                      Tip: Message the tutor first
+                    </p>
+                    <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                      We recommend messaging {tutor.full_name} to discuss your learning goals and confirm availability before booking a session.
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label>Select Date</Label>

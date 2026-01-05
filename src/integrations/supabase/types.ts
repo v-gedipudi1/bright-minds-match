@@ -41,6 +41,27 @@ export type Database = {
         }
         Relationships: []
       }
+      class_enrollments: {
+        Row: {
+          created_at: string
+          id: string
+          student_id: string
+          tutor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          student_id: string
+          tutor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          student_id?: string
+          tutor_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -173,7 +194,9 @@ export type Database = {
         Row: {
           created_at: string
           duration_minutes: number
+          group_session_id: string | null
           id: string
+          is_class_session: boolean | null
           meeting_link: string | null
           notes: string | null
           price: number | null
@@ -187,7 +210,9 @@ export type Database = {
         Insert: {
           created_at?: string
           duration_minutes?: number
+          group_session_id?: string | null
           id?: string
+          is_class_session?: boolean | null
           meeting_link?: string | null
           notes?: string | null
           price?: number | null
@@ -201,7 +226,9 @@ export type Database = {
         Update: {
           created_at?: string
           duration_minutes?: number
+          group_session_id?: string | null
           id?: string
+          is_class_session?: boolean | null
           meeting_link?: string | null
           notes?: string | null
           price?: number | null
