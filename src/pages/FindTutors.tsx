@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, ArrowLeft, Search, Star, Clock, Globe, Loader2, User } from "lucide-react";
+import { Sparkles, ArrowLeft, Search, Star, Clock, Globe, Loader2, User, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Tutor {
@@ -26,9 +26,15 @@ interface Tutor {
 const FindTutors = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tutors, setTutors] = useState<Tutor[]>([]);
   const [loadingTutors, setLoadingTutors] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const subjectFilter = searchParams.get("subject");
+
+  const clearSubjectFilter = () => {
+    setSearchParams({});
+  };
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -76,6 +82,15 @@ const FindTutors = () => {
   }, []);
 
   const filteredTutors = tutors.filter((tutor) => {
+    // Apply subject filter from URL
+    if (subjectFilter) {
+      const hasSubject = tutor.subjects?.some((s) => 
+        s.toLowerCase().includes(subjectFilter.toLowerCase())
+      );
+      if (!hasSubject) return false;
+    }
+    
+    // Apply search query filter
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -119,11 +134,23 @@ const FindTutors = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-            Find Your Perfect Tutor
+            {subjectFilter ? `Tutors Who Teach ${subjectFilter}` : "Find Your Perfect Tutor"}
           </h1>
           <p className="text-muted-foreground mb-8">
             Browse our expert tutors and book a session
           </p>
+
+          {/* Subject Filter Badge */}
+          {subjectFilter && (
+            <div className="mb-4">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                Filtering by: {subjectFilter}
+                <button onClick={clearSubjectFilter} className="hover:bg-primary/20 rounded-full p-0.5">
+                  <X className="w-4 h-4" />
+                </button>
+              </span>
+            </div>
+          )}
 
           {/* Search */}
           <div className="relative mb-8">

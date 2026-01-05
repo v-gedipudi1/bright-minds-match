@@ -83,12 +83,13 @@ const Dashboard = () => {
           .eq("recipient_id", user.id)
           .is("read_at", null);
 
-        // Unpaid sessions (for students)
+        // Unpaid sessions (for students) - only count future sessions
         const { count: unpaidCount } = await supabase
           .from("sessions")
           .select("*", { count: "exact", head: true })
           .eq("student_id", user.id)
-          .eq("status", "awaiting_payment");
+          .eq("status", "awaiting_payment")
+          .gte("scheduled_at", new Date().toISOString());
 
         setNotifications({
           unreadMessages: unreadCount || 0,
