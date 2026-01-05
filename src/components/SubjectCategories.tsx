@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { 
   Calculator, 
   FlaskConical, 
@@ -21,6 +22,11 @@ const subjects = [
 ];
 
 const SubjectCategories = () => {
+  const navigate = useNavigate();
+
+  const handleSubjectClick = (subjectName: string) => {
+    navigate(`/find-tutors?subject=${encodeURIComponent(subjectName)}`);
+  };
   return (
     <section id="subjects" className="py-24 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -43,6 +49,7 @@ const SubjectCategories = () => {
           {subjects.map((subject, index) => (
             <button
               key={index}
+              onClick={() => handleSubjectClick(subject.name)}
               className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-medium transition-all duration-300 text-left"
             >
               <div

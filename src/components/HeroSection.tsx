@@ -67,12 +67,22 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          {/* Browse Tutors Button */}
-          <div className="flex justify-center mb-12 animate-fade-in" style={{ animationDelay: '0.35s' }}>
+          {/* Action Buttons */}
+          <div className="flex flex-wrap justify-center gap-4 mb-12 animate-fade-in" style={{ animationDelay: '0.35s' }}>
             <Link to="/find-tutors">
               <Button variant="outline" size="lg" className="gap-2">
                 <Users className="w-5 h-5" />
                 Browse All Tutors
+              </Button>
+            </Link>
+            <Link to="/auth?role=tutor">
+              <Button variant="secondary" size="lg" className="gap-2">
+                Become a Tutor
+              </Button>
+            </Link>
+            <Link to="/auth?role=student">
+              <Button variant="default" size="lg" className="gap-2">
+                Book Your First Session
               </Button>
             </Link>
           </div>
