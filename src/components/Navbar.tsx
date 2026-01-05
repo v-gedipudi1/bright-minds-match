@@ -13,7 +13,6 @@ const Navbar = () => {
   const navLinks = [
     { name: "Leaderboard", href: "/leaderboard", isRoute: true },
     { name: "How It Works", href: "#how-it-works", isRoute: false },
-    { name: "Subjects", href: "#subjects", isRoute: false },
     { name: "AI Matching", href: "#ai-matching", isRoute: false },
     { name: "About", href: "#about", isRoute: false },
     { name: "Contact", href: "#contact", isRoute: false },
