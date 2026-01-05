@@ -264,9 +264,11 @@ const Sessions = () => {
   const upcomingSessions = sessions.filter(
     (s) => s.status === "confirmed" || s.status === "pending" || s.status === "awaiting_payment"
   );
+  const bookedSessions = sessions.filter((s) => s.status === "confirmed" && s.meeting_link);
   const pastSessions = sessions.filter(
     (s) => s.status === "completed" || s.status === "cancelled"
   );
+  const unpaidSessionsCount = sessions.filter((s) => s.status === "awaiting_payment" && userRole === "student").length;
 
   if (loading || loadingSessions) {
     return (
@@ -308,10 +310,17 @@ const Sessions = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              Upcoming Sessions
+              {userRole === "student" ? "My Sessions" : "Upcoming Sessions"}
+              {userRole === "student" && unpaidSessionsCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs font-bold rounded-full bg-destructive text-destructive-foreground">
+                  {unpaidSessionsCount} payment{unpaidSessionsCount !== 1 ? "s" : ""} pending
+                </span>
+              )}
             </CardTitle>
             <CardDescription>
-              Your scheduled tutoring sessions
+              {userRole === "student" 
+                ? "Sessions you need to pay for or have booked" 
+                : "Your scheduled tutoring sessions"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -561,7 +570,69 @@ const Sessions = () => {
           </CardContent>
         </Card>
 
-        {/* Past Sessions */}
+        {/* Booked Sessions - For students with meeting links */}
+        {userRole === "student" && bookedSessions.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Video className="w-5 h-5" />
+                Booked Sessions
+              </CardTitle>
+              <CardDescription>
+                Sessions ready to join with meeting links
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {bookedSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="flex items-center justify-between p-4 rounded-xl bg-green-50 border border-green-200 dark:bg-green-950/30 dark:border-green-800"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900 flex items-center justify-center overflow-hidden">
+                        {session.tutor_avatar ? (
+                          <img
+                            src={session.tutor_avatar}
+                            alt="Tutor"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-6 h-6 text-green-600 dark:text-green-400" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {session.subject} with {session.tutor_name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(session.scheduled_at).toLocaleDateString("en-US", {
+                            weekday: "long",
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                          {" · "}
+                          {session.duration_minutes} min
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => window.open(session.meeting_link!, "_blank")}
+                      className="gap-2"
+                    >
+                      <Video className="w-4 h-4" />
+                      Join Meeting
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

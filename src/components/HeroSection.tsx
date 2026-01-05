@@ -45,7 +45,7 @@ const HeroSection = () => {
 
           {/* Subheadline */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Connecting struggling students with retired professors and advanced 
+            Connecting struggling students with working professionals and advanced 
             college students. Our AI matches you with the perfect mentor based on 
             learning styles, personalities, and goals.
           </p>

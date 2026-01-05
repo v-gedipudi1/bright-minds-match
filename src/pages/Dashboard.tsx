@@ -4,8 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy } from "lucide-react";
+import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy, Users } from "lucide-react";
 import { toast } from "sonner";
+import MyClasses from "@/components/MyClasses";
+import MyStudents from "@/components/MyStudents";
 
 interface Profile {
   id: string;
@@ -25,12 +27,21 @@ interface Session {
   student_id: string;
 }
 
+interface NotificationCounts {
+  unreadMessages: number;
+  unpaidSessions: number;
+}
+
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [notifications, setNotifications] = useState<NotificationCounts>({
+    unreadMessages: 0,
+    unpaidSessions: 0,
+  });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -63,6 +74,26 @@ const Dashboard = () => {
 
         if (sessionsError) throw sessionsError;
         setSessions(sessionsData || []);
+
+        // Fetch notification counts
+        // Unread messages
+        const { count: unreadCount } = await supabase
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .eq("recipient_id", user.id)
+          .is("read_at", null);
+
+        // Unpaid sessions (for students)
+        const { count: unpaidCount } = await supabase
+          .from("sessions")
+          .select("*", { count: "exact", head: true })
+          .eq("student_id", user.id)
+          .eq("status", "awaiting_payment");
+
+        setNotifications({
+          unreadMessages: unreadCount || 0,
+          unpaidSessions: unpaidCount || 0,
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Failed to load dashboard data");
@@ -179,11 +210,16 @@ const Dashboard = () => {
               </Card>
             </Link>
           )}
-          <Link to="/sessions">
+          <Link to="/sessions" className="relative">
             <Card className="hover:shadow-medium transition-shadow cursor-pointer group">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+                <div className="relative w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
                   <Calendar className="w-6 h-6 text-secondary" />
+                  {isStudent && notifications.unpaidSessions > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                      {notifications.unpaidSessions}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">My Sessions</p>
@@ -192,11 +228,16 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </Link>
-          <Link to="/messages">
+          <Link to="/messages" className="relative">
             <Card className="hover:shadow-medium transition-shadow cursor-pointer group">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                <div className="relative w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                   <MessageSquare className="w-6 h-6 text-accent" />
+                  {notifications.unreadMessages > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                      {notifications.unreadMessages > 9 ? "9+" : notifications.unreadMessages}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">Messages</p>
@@ -309,6 +350,12 @@ const Dashboard = () => {
               )}
             </CardContent>
           </Card>
+        </div>
+
+        {/* My Classes (for students) or My Students (for tutors) */}
+        <div className="mt-8">
+          {isStudent && <MyClasses />}
+          {isTutor && <MyStudents />}
         </div>
       </main>
     </div>
