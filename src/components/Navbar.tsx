@@ -12,7 +12,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Leaderboard", href: "/leaderboard", isRoute: true },
-    { name: "How It Works", href: "#how-it-works", isRoute: false },
+    { name: "Subjects", href: "#subjects", isRoute: false },
     { name: "AI Matching", href: "#ai-matching", isRoute: false },
     { name: "About", href: "#about", isRoute: false },
     { name: "Contact", href: "#contact", isRoute: false },
@@ -38,13 +38,13 @@ const Navbar = () => {
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-5">
             {navLinks.map((link) => (
               link.isRoute ? (
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
+                  className="text-foreground font-semibold text-sm transition-colors duration-200 hover:text-primary"
                 >
                   {link.name}
                 </Link>
@@ -52,7 +52,7 @@ const Navbar = () => {
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
+                  className="text-foreground font-semibold text-sm transition-colors duration-200 hover:text-primary"
                 >
                   {link.name}
                 </a>
@@ -60,21 +60,21 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
                 <Link to="/dashboard">
-                  <Button variant="ghost">Dashboard</Button>
+                  <Button variant="ghost" size="sm" className="font-semibold">Dashboard</Button>
                 </Link>
-                <Button variant="default" onClick={handleSignOut}>Sign Out</Button>
+                <Button variant="default" size="sm" onClick={handleSignOut}>Sign Out</Button>
               </>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost">Sign In</Button>
+                  <Button variant="ghost" size="sm">Sign In</Button>
                 </Link>
                 <Link to="/auth">
-                  <Button variant="default">Get Started</Button>
+                  <Button variant="default" size="sm">Get Started</Button>
                 </Link>
               </>
             )}
