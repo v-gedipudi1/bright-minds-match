@@ -1,23 +1,35 @@
-import { Search, Sparkles, Video, CheckCircle } from "lucide-react";
+import { UserPlus, Users, CalendarCheck, CreditCard, Video, CheckCircle } from "lucide-react";
 
 const steps = [
   {
-    icon: Search,
-    title: "Tell Us Your Goals",
-    description: "Share what you want to learn and your preferred learning style. Our smart questionnaire takes just 2 minutes.",
+    icon: UserPlus,
+    title: "Create Your Account",
+    description: "Sign up as a student and tell us about your learning goals, subjects you need help with, and your preferred schedule.",
     color: "primary",
   },
   {
-    icon: Sparkles,
-    title: "AI Finds Your Match",
-    description: "Our AI analyzes all of our registered tutors to find the perfect match based on expertise, teaching style, and availability.",
+    icon: Users,
+    title: "Join a Class",
+    description: "Browse our verified tutors or use AI matching to find your perfect tutor. Join their class to get started.",
     color: "accent",
   },
   {
-    icon: Video,
-    title: "Start Learning",
-    description: "Book your first session with a few clicks. Meet your tutor via video call and begin your personalized learning journey.",
+    icon: CalendarCheck,
+    title: "Book a Session",
+    description: "Choose a date and time that works for you from your tutor's availability. Select your subject and session duration.",
     color: "secondary",
+  },
+  {
+    icon: CreditCard,
+    title: "Complete Payment",
+    description: "Securely pay for your session through our platform. Your tutor will be notified once payment is confirmed.",
+    color: "primary",
+  },
+  {
+    icon: Video,
+    title: "Get Your Meeting Link",
+    description: "Receive your personalized video meeting link. Connect with your tutor and start your learning journey!",
+    color: "accent",
   },
 ];
 
@@ -32,27 +44,27 @@ const HowItWorks = () => {
             <span className="text-sm font-medium text-foreground">Simple Process</span>
           </div>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            How Bright Minds Match Works
+            How It Works
           </h2>
           <p className="text-muted-foreground text-lg">
-            Getting started is easy. Find your ideal tutor in three simple steps.
+            Getting started is easy. Book your first tutoring session in five simple steps.
           </p>
         </div>
 
         {/* Steps */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-5 gap-6 max-w-6xl mx-auto">
           {steps.map((step, index) => (
             <div key={index} className="relative group">
               {/* Connector Line (hidden on mobile, visible on md+) */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-16 left-[calc(50%+40px)] w-[calc(100%-80px)] h-0.5 bg-gradient-to-r from-border via-primary/30 to-border" />
+                <div className="hidden md:block absolute top-14 left-[calc(50%+32px)] w-[calc(100%-64px)] h-0.5 bg-gradient-to-r from-border via-primary/30 to-border" />
               )}
 
               <div className="flex flex-col items-center text-center">
                 {/* Step Number */}
-                <div className="relative mb-6">
+                <div className="relative mb-4">
                   <div
-                    className={`w-32 h-32 rounded-3xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${
+                    className={`w-24 h-24 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${
                       step.color === "primary"
                         ? "bg-primary/10 group-hover:bg-primary/20"
                         : step.color === "accent"
@@ -61,7 +73,7 @@ const HowItWorks = () => {
                     }`}
                   >
                     <step.icon
-                      className={`w-12 h-12 ${
+                      className={`w-10 h-10 ${
                         step.color === "primary"
                           ? "text-primary"
                           : step.color === "accent"
@@ -70,16 +82,16 @@ const HowItWorks = () => {
                       }`}
                     />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-soft">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-soft">
                     {index + 1}
                   </div>
                 </div>
 
                 {/* Content */}
-                <h3 className="font-display text-xl font-bold text-foreground mb-3">
+                <h3 className="font-display text-lg font-bold text-foreground mb-2">
                   {step.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
