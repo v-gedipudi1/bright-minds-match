@@ -76,12 +76,12 @@ const HeroSection = () => {
               </Button>
             </Link>
             <Link to="/auth?role=tutor">
-              <Button variant="secondary" size="lg" className="gap-2">
+              <Button variant="outline" size="lg" className="gap-2">
                 Become a Tutor
               </Button>
             </Link>
             <Link to="/auth?role=student">
-              <Button variant="default" size="lg" className="gap-2">
+              <Button variant="hero" size="lg" className="gap-2">
                 Book Your First Session
               </Button>
             </Link>
