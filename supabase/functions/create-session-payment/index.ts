@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -22,88 +23,6 @@ const validateSessionId = (sessionId: unknown): string => {
     throw new Error('sessionId must be a valid UUID');
   }
   return sessionId;
-};
-
-// Get PayPal access token
-const getPayPalAccessToken = async (): Promise<string> => {
-  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
-  const clientSecret = Deno.env.get("PAYPAL_SECRET");
-  
-  if (!clientId || !clientSecret) {
-    throw new Error("PayPal credentials not configured");
-  }
-
-  const auth = btoa(`${clientId}:${clientSecret}`);
-  
-  // Use sandbox for testing, change to api.paypal.com for production
-  const response = await fetch("https://api-m.sandbox.paypal.com/v1/oauth2/token", {
-    method: "POST",
-    headers: {
-      "Authorization": `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    logStep("PayPal auth failed", { error });
-    throw new Error("Failed to authenticate with PayPal");
-  }
-
-  const data = await response.json();
-  return data.access_token;
-};
-
-// Create PayPal order
-const createPayPalOrder = async (
-  accessToken: string,
-  amount: number,
-  sessionId: string,
-  description: string,
-  origin: string
-): Promise<{ id: string; approvalUrl: string }> => {
-  const response = await fetch("https://api-m.sandbox.paypal.com/v2/checkout/orders", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      intent: "CAPTURE",
-      purchase_units: [
-        {
-          reference_id: sessionId,
-          description: description,
-          amount: {
-            currency_code: "USD",
-            value: amount.toFixed(2),
-          },
-        },
-      ],
-      application_context: {
-        return_url: `${origin}/sessions?payment=success&session_id=${sessionId}`,
-        cancel_url: `${origin}/sessions?payment=cancelled`,
-        brand_name: "BrightMinds Tutoring",
-        user_action: "PAY_NOW",
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    logStep("PayPal order creation failed", { error });
-    throw new Error("Failed to create PayPal order");
-  }
-
-  const order = await response.json();
-  const approvalLink = order.links.find((link: any) => link.rel === "approve");
-  
-  if (!approvalLink) {
-    throw new Error("No approval URL in PayPal response");
-  }
-
-  return { id: order.id, approvalUrl: approvalLink.href };
 };
 
 serve(async (req) => {
@@ -199,24 +118,48 @@ serve(async (req) => {
       status: session.status 
     });
 
-    // Get PayPal access token
-    const accessToken = await getPayPalAccessToken();
-    logStep("PayPal access token obtained");
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
+    });
 
-    // Create PayPal order
-    const origin = req.headers.get("origin") || "http://localhost:5173";
-    const description = `${duration} minute ${subject} session with ${tutorName}`;
-    const { id: orderId, approvalUrl } = await createPayPalOrder(
-      accessToken,
-      amount,
-      sessionId,
-      description,
-      origin
-    );
+    // Check if customer exists
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    let customerId;
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
+      logStep("Found existing Stripe customer", { customerId });
+    }
 
-    logStep("PayPal order created", { orderId });
+    // Create a checkout session with verified pricing from database
+    const stripeSession = await stripe.checkout.sessions.create({
+      customer: customerId,
+      customer_email: customerId ? undefined : user.email,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `Tutoring Session: ${subject}`,
+              description: `${duration} minute session with ${tutorName}`,
+            },
+            unit_amount: Math.round(amount * 100), // Convert to cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${req.headers.get("origin")}/sessions?payment=success&session_id=${sessionId}`,
+      cancel_url: `${req.headers.get("origin")}/sessions?payment=cancelled`,
+      metadata: {
+        session_id: sessionId,
+        user_id: user.id,
+      },
+    });
 
-    return new Response(JSON.stringify({ url: approvalUrl, orderId }), {
+    logStep("Checkout session created", { checkoutSessionId: stripeSession.id });
+
+    return new Response(JSON.stringify({ url: stripeSession.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

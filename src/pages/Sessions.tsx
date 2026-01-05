@@ -39,44 +39,27 @@ const Sessions = () => {
   const [editingMeetingLink, setEditingMeetingLink] = useState<string | null>(null);
   const [newMeetingLink, setNewMeetingLink] = useState<string>("");
 
-  // Handle PayPal payment success/cancel from URL params
+  // Handle payment success/cancel from URL params
   useEffect(() => {
     const paymentStatus = searchParams.get("payment");
     const sessionId = searchParams.get("session_id");
-    const paypalToken = searchParams.get("token"); // PayPal order ID
     
     if (paymentStatus === "success" && sessionId) {
-      // For PayPal, we need to capture the payment
-      const capturePayPalPayment = async () => {
+      // Update session status to confirmed after successful payment
+      const updatePaymentStatus = async () => {
         try {
-          if (paypalToken) {
-            // Capture PayPal payment
-            const { data, error } = await supabase.functions.invoke("capture-paypal-payment", {
-              body: { orderId: paypalToken, sessionId },
-            });
-            
-            if (error || data?.error) {
-              throw new Error(data?.error || error?.message || "Failed to capture payment");
-            }
-            
-            toast.success("Payment successful! Your session is confirmed.");
-          } else {
-            // Fallback: just update status directly
-            await supabase
-              .from("sessions")
-              .update({ status: "confirmed" })
-              .eq("id", sessionId);
-            toast.success("Payment successful! Your session is confirmed.");
-          }
-          // Clear the URL params and refresh sessions
+          await supabase
+            .from("sessions")
+            .update({ status: "confirmed" })
+            .eq("id", sessionId);
+          toast.success("Payment successful! Your session is confirmed.");
+          // Clear the URL params
           navigate("/sessions", { replace: true });
         } catch (error) {
-          console.error("Error processing payment:", error);
-          toast.error("Payment issue - please contact support");
-          navigate("/sessions", { replace: true });
+          console.error("Error updating session after payment:", error);
         }
       };
-      capturePayPalPayment();
+      updatePaymentStatus();
     } else if (paymentStatus === "cancelled") {
       toast.info("Payment was cancelled");
       navigate("/sessions", { replace: true });
@@ -220,8 +203,8 @@ const Sessions = () => {
 
   const handleSavePrice = async (sessionId: string) => {
     const priceValue = parseFloat(newPrice);
-    if (isNaN(priceValue) || priceValue < 1) {
-      toast.error("Price must be at least $1.00");
+    if (isNaN(priceValue) || priceValue < 0.50) {
+      toast.error("Price must be at least $0.50 (Stripe minimum)");
       return;
     }
 
