@@ -1,8 +1,34 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Lock } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+
+const TUTOR_ACCESS_CODE = "7904";
 
 const CTASection = () => {
+  const [tutorDialogOpen, setTutorDialogOpen] = useState(false);
+  const [tutorPassword, setTutorPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleTutorPortalSubmit = () => {
+    if (tutorPassword === TUTOR_ACCESS_CODE) {
+      setTutorDialogOpen(false);
+      setTutorPassword("");
+      navigate("/auth?role=tutor");
+    } else {
+      toast.error("Incorrect password. Please try again.");
+    }
+  };
+
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background */}
@@ -39,15 +65,15 @@ const CTASection = () => {
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
-            <Link to="/auth">
-              <Button
-                variant="outline"
-                size="xl"
-                className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
-              >
-                Become a Tutor
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="xl"
+              className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground gap-2"
+              onClick={() => setTutorDialogOpen(true)}
+            >
+              <Lock className="w-5 h-5" />
+              Become a Tutor
+            </Button>
           </div>
 
           {/* Trust Badges */}
@@ -58,6 +84,34 @@ const CTASection = () => {
           </div>
         </div>
       </div>
+
+      {/* Tutor Portal Password Dialog */}
+      <Dialog open={tutorDialogOpen} onOpenChange={setTutorDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Tutor Access Required</DialogTitle>
+            <DialogDescription>
+              Please enter the tutor access code to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <Input
+              type="password"
+              placeholder="Enter access code"
+              value={tutorPassword}
+              onChange={(e) => setTutorPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleTutorPortalSubmit();
+                }
+              }}
+            />
+            <Button onClick={handleTutorPortalSubmit}>
+              Continue
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
