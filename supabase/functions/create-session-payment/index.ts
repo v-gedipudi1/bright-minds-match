@@ -100,7 +100,14 @@ serve(async (req) => {
       throw new Error("Session does not have a valid price set");
     }
 
-    // Get tutor name from profiles table (don't trust client)
+    // Get tutor profile including Stripe Connect account
+    const { data: tutorProfileData } = await supabaseClient
+      .from('tutor_profiles')
+      .select('stripe_account_id, stripe_onboarding_complete')
+      .eq('user_id', session.tutor_id)
+      .single();
+
+    // Get tutor name from profiles table
     const { data: tutorProfile } = await supabaseClient
       .from('profiles')
       .select('full_name')
@@ -108,6 +115,8 @@ serve(async (req) => {
       .single();
 
     const tutorName = tutorProfile?.full_name || 'Tutor';
+    const tutorStripeAccountId = tutorProfileData?.stripe_account_id;
+    const tutorOnboardingComplete = tutorProfileData?.stripe_onboarding_complete;
 
     logStep("Session verified", { 
       sessionId, 
@@ -115,6 +124,8 @@ serve(async (req) => {
       subject, 
       duration,
       tutorName,
+      tutorStripeAccountId,
+      tutorOnboardingComplete,
       status: session.status 
     });
 
@@ -130,8 +141,20 @@ serve(async (req) => {
       logStep("Found existing Stripe customer", { customerId });
     }
 
-    // Create a checkout session with verified pricing from database
-    const stripeSession = await stripe.checkout.sessions.create({
+    const amountInCents = Math.round(amount * 100);
+    
+    // Calculate platform fee (8%) - tutor gets 92%
+    const platformFeePercent = 8;
+    const applicationFeeAmount = Math.round(amountInCents * (platformFeePercent / 100));
+
+    logStep("Payment split calculated", { 
+      totalAmount: amountInCents,
+      platformFee: applicationFeeAmount,
+      tutorReceives: amountInCents - applicationFeeAmount
+    });
+
+    // Build checkout session options
+    const checkoutOptions: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       payment_method_types: ['card'],
@@ -143,7 +166,7 @@ serve(async (req) => {
               name: `Tutoring Session: ${subject}`,
               description: `${duration} minute session with ${tutorName}`,
             },
-            unit_amount: Math.round(amount * 100), // Convert to cents
+            unit_amount: amountInCents,
           },
           quantity: 1,
         },
@@ -155,7 +178,29 @@ serve(async (req) => {
         session_id: sessionId,
         user_id: user.id,
       },
-    });
+    };
+
+    // If tutor has completed Stripe Connect onboarding, use payment split
+    if (tutorStripeAccountId && tutorOnboardingComplete) {
+      checkoutOptions.payment_intent_data = {
+        application_fee_amount: applicationFeeAmount,
+        transfer_data: {
+          destination: tutorStripeAccountId,
+        },
+      };
+      logStep("Using Stripe Connect with payment split", { 
+        destination: tutorStripeAccountId,
+        applicationFee: applicationFeeAmount 
+      });
+    } else {
+      logStep("Tutor not connected to Stripe - payment goes to platform only", {
+        hasAccount: !!tutorStripeAccountId,
+        onboardingComplete: tutorOnboardingComplete
+      });
+    }
+
+    // Create a checkout session with verified pricing from database
+    const stripeSession = await stripe.checkout.sessions.create(checkoutOptions);
 
     logStep("Checkout session created", { checkoutSessionId: stripeSession.id });
 

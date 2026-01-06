@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Sparkles, ArrowLeft, Camera, Loader2, Save, User, Star } from "lucide-react";
 import DeleteAccountSection from "@/components/DeleteAccountSection";
 import ReviewTutorDialog from "@/components/ReviewTutorDialog";
+import StripeConnectSection from "@/components/StripeConnectSection";
 import { toast } from "sonner";
 import AvailabilityScheduler, { WeeklyAvailability, getDefaultAvailability } from "@/components/AvailabilityScheduler";
 
@@ -402,6 +403,11 @@ const Profile = () => {
 
             <div className="mb-6">
               <AvailabilityScheduler availability={availability} onChange={setAvailability} />
+            </div>
+
+            {/* Stripe Connect for Payments */}
+            <div className="mb-6">
+              <StripeConnectSection />
             </div>
           </>
         ) : (
