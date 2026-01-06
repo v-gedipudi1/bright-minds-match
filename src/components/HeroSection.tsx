@@ -1,15 +1,36 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Star, Users } from "lucide-react";
+import { Search, Star, Users, Lock } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [tutorDialogOpen, setTutorDialogOpen] = useState(false);
+  const [tutorPassword, setTutorPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSearch = () => {
     navigate("/auth");
+  };
+
+  const handleTutorPortalSubmit = () => {
+    if (tutorPassword === "7904") {
+      setTutorDialogOpen(false);
+      setTutorPassword("");
+      navigate("/auth?role=tutor");
+    } else {
+      toast.error("Incorrect password. Please try again.");
+    }
   };
 
   return (
@@ -75,17 +96,49 @@ const HeroSection = () => {
                 Browse All Tutors
               </Button>
             </Link>
-            <Link to="/auth?role=tutor">
-              <Button variant="outline" size="lg" className="gap-2">
-                Become a Tutor
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="gap-2"
+              onClick={() => setTutorDialogOpen(true)}
+            >
+              <Lock className="w-5 h-5" />
+              Tutor Portal
+            </Button>
             <Link to="/auth?role=student">
               <Button variant="outline" size="lg" className="gap-2">
                 Book Your First Session
               </Button>
             </Link>
           </div>
+
+      {/* Tutor Portal Password Dialog */}
+      <Dialog open={tutorDialogOpen} onOpenChange={setTutorDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Tutor Portal Access</DialogTitle>
+            <DialogDescription>
+              Please enter the tutor password to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <Input
+              type="password"
+              placeholder="Enter password"
+              value={tutorPassword}
+              onChange={(e) => setTutorPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleTutorPortalSubmit();
+                }
+              }}
+            />
+            <Button onClick={handleTutorPortalSubmit}>
+              Access Portal
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
           {/* Slogan */}
           <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
