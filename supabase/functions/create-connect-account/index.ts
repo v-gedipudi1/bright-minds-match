@@ -72,10 +72,12 @@ serve(async (req) => {
     });
 
     let accountId = tutorProfile.stripe_account_id;
+    let isNewAccount = false;
 
     // If no account exists, create one
     if (!accountId) {
       logStep("Creating new Stripe Connect account");
+      isNewAccount = true;
       
       const account = await stripe.accounts.create({
         type: 'express',
@@ -107,18 +109,31 @@ serve(async (req) => {
       }
     } else {
       logStep("Existing Stripe Connect account found", { accountId });
+      
+      // Check account status to determine link type
+      const account = await stripe.accounts.retrieve(accountId);
+      logStep("Account status", { 
+        chargesEnabled: account.charges_enabled, 
+        detailsSubmitted: account.details_submitted 
+      });
     }
 
     // Create an account link for onboarding
     const origin = req.headers.get("origin") || "http://localhost:5173";
+    
+    // Use account_onboarding for new/incomplete accounts, account_update for complete ones
+    const linkType = tutorProfile.stripe_onboarding_complete ? 'account_update' : 'account_onboarding';
+    logStep("Creating account link", { type: linkType, accountId });
+    
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
       refresh_url: `${origin}/profile?stripe=refresh`,
       return_url: `${origin}/profile?stripe=success`,
-      type: 'account_onboarding',
+      type: linkType,
+      collect: linkType === 'account_onboarding' ? 'eventually_due' : undefined,
     });
 
-    logStep("Account link created", { url: accountLink.url });
+    logStep("Account link created successfully", { url: accountLink.url });
 
     return new Response(JSON.stringify({ 
       url: accountLink.url,
