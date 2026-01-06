@@ -15,6 +15,8 @@ const authSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").optional(),
 });
 
+const TUTOR_ACCESS_CODE = "7904";
+
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const roleFromUrl = searchParams.get("role") as "student" | "tutor" | null;
@@ -24,8 +26,9 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"student" | "tutor">(roleFromUrl || "student");
+  const [tutorAccessCode, setTutorAccessCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string; tutorAccessCode?: string }>({});
 
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -63,6 +66,15 @@ const Auth = () => {
     e.preventDefault();
     
     if (!validateForm()) return;
+
+    // Validate tutor access code
+    if (isSignUp && role === "tutor") {
+      if (tutorAccessCode !== TUTOR_ACCESS_CODE) {
+        setErrors(prev => ({ ...prev, tutorAccessCode: "Invalid tutor access code" }));
+        toast.error("Invalid tutor access code. Please contact administration.");
+        return;
+      }
+    }
     
     setIsLoading(true);
 
@@ -181,6 +193,29 @@ const Auth = () => {
                       </button>
                     </div>
                   </div>
+
+                  {role === "tutor" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="tutorAccessCode">Tutor Access Code</Label>
+                      <Input
+                        id="tutorAccessCode"
+                        type="password"
+                        placeholder="Enter tutor access code"
+                        value={tutorAccessCode}
+                        onChange={(e) => {
+                          setTutorAccessCode(e.target.value);
+                          setErrors(prev => ({ ...prev, tutorAccessCode: undefined }));
+                        }}
+                        disabled={isLoading}
+                      />
+                      {errors.tutorAccessCode && (
+                        <p className="text-sm text-destructive">{errors.tutorAccessCode}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Contact administration for the tutor access code
+                      </p>
+                    </div>
+                  )}
                 </>
               )}
 
