@@ -296,6 +296,8 @@ export type Database = {
           id: string
           is_verified: boolean | null
           rating: number | null
+          stripe_account_id: string | null
+          stripe_onboarding_complete: boolean | null
           subjects: string[] | null
           teaching_style: string | null
           total_reviews: number | null
@@ -312,6 +314,8 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           rating?: number | null
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean | null
           subjects?: string[] | null
           teaching_style?: string | null
           total_reviews?: number | null
@@ -328,6 +332,8 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           rating?: number | null
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean | null
           subjects?: string[] | null
           teaching_style?: string | null
           total_reviews?: number | null
