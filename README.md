@@ -1,73 +1,153 @@
-# Welcome to your Lovable project
+# BrightMinds Tutoring Platform
 
-## Project info
+![BrightMinds Banner](docs/images/banner.png)
+<!-- Suggested: A hero banner showing your landing page or logo with tagline "Connect with Expert Tutors" -->
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+A modern peer-to-peer tutoring marketplace that connects students with qualified tutors using AI-powered matching technology.
 
-## How can I edit this code?
+## 🌟 Features
 
-There are several ways of editing your application.
+### For Students
+- **AI-Powered Tutor Matching** - Get matched with the perfect tutor based on your learning style, goals, and personality
+- **Easy Session Booking** - Browse tutors, view availability, and book sessions seamlessly
+- **Real-time Messaging** - Communicate directly with tutors before and after sessions
+- **Session Management** - Track upcoming, completed, and cancelled sessions
+- **Tutor Reviews** - Leave feedback and help other students find great tutors
 
-**Use Lovable**
+![Student Dashboard](docs/images/student-dashboard.png)
+<!-- Suggested: Screenshot of the student dashboard showing upcoming sessions and quick actions -->
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### For Tutors
+- **Profile Management** - Showcase your expertise, education, and teaching style
+- **Flexible Scheduling** - Set your own availability and hourly rates
+- **Stripe Integration** - Get paid directly with secure payment processing
+- **Student Management** - View enrolled students and session history
+- **Performance Leaderboard** - Compete and gain visibility among top tutors
 
-Changes made via Lovable will be committed automatically to this repo.
+![Tutor Profile](docs/images/tutor-profile.png)
+<!-- Suggested: Screenshot of a tutor's profile page showing subjects, ratings, and bio -->
 
-**Use your preferred IDE**
+### Platform Features
+- **Secure Payments** - Stripe Connect integration with transparent 8% platform fee
+- **Real-time Notifications** - Stay updated on messages and session changes
+- **Responsive Design** - Works beautifully on desktop, tablet, and mobile
+- **Dark/Light Mode** - Choose your preferred theme
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+| Category | Technology |
+|----------|------------|
+| Frontend | React 18, TypeScript, Vite |
+| Styling | Tailwind CSS, shadcn/ui |
+| Backend | Supabase (PostgreSQL, Auth, Edge Functions) |
+| Payments | Stripe Connect |
+| AI | Google Gemini for tutor matching |
+| State Management | TanStack Query |
+| Routing | React Router v6 |
 
-Follow these steps:
+## 📸 Screenshots
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Landing Page
+![Landing Page](docs/images/landing-page.png)
+<!-- Suggested: Full landing page screenshot showing hero section, how it works, and subject categories -->
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### AI Matching
+![AI Matching](docs/images/ai-matching.png)
+<!-- Suggested: Screenshot of the AI matching questionnaire or results page -->
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Session Booking
+![Booking Flow](docs/images/booking-flow.png)
+<!-- Suggested: Screenshot of the tutor selection and booking process -->
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Messages
+![Messaging](docs/images/messaging.png)
+<!-- Suggested: Screenshot of the real-time messaging interface -->
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or bun
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/brightminds.git
+
+# Navigate to project directory
+cd brightminds
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Create a `.env` file in the root directory:
 
-**Use GitHub Codespaces**
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📁 Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   └── ...             # Feature components
+├── pages/              # Route pages
+├── hooks/              # Custom React hooks
+├── integrations/       # Third-party integrations
+└── lib/                # Utility functions
 
-This project is built with:
+supabase/
+├── functions/          # Edge functions
+│   ├── ai-match/       # AI tutor matching
+│   ├── create-session-payment/  # Stripe payments
+│   └── ...
+└── migrations/         # Database migrations
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 💳 Payment Flow
 
-## How can I deploy this project?
+1. Student books a session with a tutor
+2. Payment is processed via Stripe Checkout
+3. Platform retains 8% as service fee
+4. Remaining 92% is transferred to tutor's connected Stripe account
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## 🔐 Security
 
-## Can I connect a custom domain to my Lovable project?
+- Row Level Security (RLS) policies on all database tables
+- Secure authentication via Supabase Auth
+- Stripe Connect for PCI-compliant payment handling
+- Protected API routes with JWT verification
 
-Yes, you can!
+## 📱 Responsive Design
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+BrightMinds is fully responsive and optimized for:
+- Desktop (1920px+)
+- Laptop (1024px - 1919px)
+- Tablet (768px - 1023px)
+- Mobile (320px - 767px)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📧 Contact
+
+For questions or support, please reach out via the contact form on the platform.
+
+---
+
+Built with ❤️ for students and tutors everywhere.
