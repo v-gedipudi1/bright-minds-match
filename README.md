@@ -1,9 +1,8 @@
 # BrightMinds Tutoring Platform
 
-![BrightMinds Banner](docs/images/banner.png)
-<!-- Suggested: A hero banner showing your landing page or logo with tagline "Connect with Expert Tutors" -->
-
 A modern peer-to-peer tutoring marketplace that connects students with qualified tutors using AI-powered matching technology.
+
+🌐 **Live Site:** [https://brightminds.lovable.app](https://brightminds.lovable.app)
 
 ## 🌟 Features
 
@@ -14,18 +13,12 @@ A modern peer-to-peer tutoring marketplace that connects students with qualified
 - **Session Management** - Track upcoming, completed, and cancelled sessions
 - **Tutor Reviews** - Leave feedback and help other students find great tutors
 
-![Student Dashboard](docs/images/student-dashboard.png)
-<!-- Suggested: Screenshot of the student dashboard showing upcoming sessions and quick actions -->
-
 ### For Tutors
 - **Profile Management** - Showcase your expertise, education, and teaching style
 - **Flexible Scheduling** - Set your own availability and hourly rates
 - **Stripe Integration** - Get paid directly with secure payment processing
 - **Student Management** - View enrolled students and session history
 - **Performance Leaderboard** - Compete and gain visibility among top tutors
-
-![Tutor Profile](docs/images/tutor-profile.png)
-<!-- Suggested: Screenshot of a tutor's profile page showing subjects, ratings, and bio -->
 
 ### Platform Features
 - **Secure Payments** - Stripe Connect integration with transparent 8% platform fee
@@ -47,21 +40,13 @@ A modern peer-to-peer tutoring marketplace that connects students with qualified
 
 ## 📸 Screenshots
 
-### Landing Page
-![Landing Page](docs/images/landing-page.png)
-<!-- Suggested: Full landing page screenshot showing hero section, how it works, and subject categories -->
-
-### AI Matching
-![AI Matching](docs/images/ai-matching.png)
-<!-- Suggested: Screenshot of the AI matching questionnaire or results page -->
-
-### Session Booking
-![Booking Flow](docs/images/booking-flow.png)
-<!-- Suggested: Screenshot of the tutor selection and booking process -->
-
-### Messages
-![Messaging](docs/images/messaging.png)
-<!-- Suggested: Screenshot of the real-time messaging interface -->
+> **Note:** To add screenshots, create a `docs/images/` folder and add your own screenshots:
+> - `landing-page.png` - Full landing page with hero section
+> - `tutor-profile.png` - Tutor profile page with subjects and ratings
+> - `ai-matching.png` - AI matching questionnaire or results
+> - `booking-flow.png` - Tutor selection and booking process
+> - `messaging.png` - Real-time messaging interface
+> - `student-dashboard.png` - Dashboard with upcoming sessions
 
 ## 🚀 Getting Started
 
