@@ -1,32 +1,56 @@
 # BrightMinds Tutoring Platform
 
-A modern peer-to-peer tutoring marketplace that connects students with qualified tutors using AI-powered matching technology.
+A peer-to-peer tutoring marketplace connecting students with qualified tutors through intelligent matching.
 
-🌐 **Live Site:** [https://brightminds.lovable.app](https://brightminds.lovable.app)
+**Live Site:** [https://brightminds.lovable.app](https://brightminds.lovable.app)
 
-## 🌟 Features
+![Landing Page](docs/images/landing-page.png)
+
+---
+
+## About
+
+I built BrightMinds to solve a problem I saw firsthand: students struggling to find the right tutor, and tutors struggling to find students who match their teaching style. The platform uses a matching algorithm that considers learning styles, goals, and personalities to create better tutor-student pairings.
+
+---
+
+## Features
 
 ### For Students
-- **AI-Powered Tutor Matching** - Get matched with the perfect tutor based on your learning style, goals, and personality
-- **Easy Session Booking** - Browse tutors, view availability, and book sessions seamlessly
-- **Real-time Messaging** - Communicate directly with tutors before and after sessions
-- **Session Management** - Track upcoming, completed, and cancelled sessions
-- **Tutor Reviews** - Leave feedback and help other students find great tutors
+
+Students can browse tutors, get matched based on their learning preferences, book sessions, and communicate directly with their tutors.
+
+![Find Tutors](docs/images/find-tutors.png)
+
+**Key capabilities:**
+- Browse and search tutors by subject, rate, and experience
+- AI-powered matching based on learning style and goals
+- Session booking with real-time availability
+- Direct messaging with tutors
+- Review system to help other students
 
 ### For Tutors
-- **Profile Management** - Showcase your expertise, education, and teaching style
-- **Flexible Scheduling** - Set your own availability and hourly rates
-- **Stripe Integration** - Get paid directly with secure payment processing
-- **Student Management** - View enrolled students and session history
-- **Performance Leaderboard** - Compete and gain visibility among top tutors
 
-### Platform Features
-- **Secure Payments** - Stripe Connect integration with transparent 8% platform fee
-- **Real-time Notifications** - Stay updated on messages and session changes
-- **Responsive Design** - Works beautifully on desktop, tablet, and mobile
-- **Dark/Light Mode** - Choose your preferred theme
+Tutors have full control over their profiles, availability, and pricing. The platform handles payments automatically through Stripe Connect.
 
-## 🛠️ Tech Stack
+![Tutor Leaderboard](docs/images/leaderboard.png)
+
+**Key capabilities:**
+- Profile management with subjects, rates, and bio
+- Flexible scheduling and availability settings
+- Stripe integration for direct payments
+- Student management and session history
+- Performance leaderboard for visibility
+
+### Authentication
+
+Secure login and registration for both students and tutors.
+
+![Authentication](docs/images/auth.png)
+
+---
+
+## Tech Stack
 
 | Category | Technology |
 |----------|------------|
@@ -34,105 +58,96 @@ A modern peer-to-peer tutoring marketplace that connects students with qualified
 | Styling | Tailwind CSS, shadcn/ui |
 | Backend | Supabase (PostgreSQL, Auth, Edge Functions) |
 | Payments | Stripe Connect |
-| AI | Google Gemini for tutor matching |
-| State Management | TanStack Query |
+| AI | Google Gemini |
+| State | TanStack Query |
 | Routing | React Router v6 |
 
-## 📸 Screenshots
+---
 
-> **Note:** To add screenshots, create a `docs/images/` folder and add your own screenshots:
-> - `landing-page.png` - Full landing page with hero section
-> - `tutor-profile.png` - Tutor profile page with subjects and ratings
-> - `ai-matching.png` - AI matching questionnaire or results
-> - `booking-flow.png` - Tutor selection and booking process
-> - `messaging.png` - Real-time messaging interface
-> - `student-dashboard.png` - Dashboard with upcoming sessions
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - npm or bun
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/brightminds.git
-
-# Navigate to project directory
 cd brightminds
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
 ### Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file:
 
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
 ```
 
-## 📁 Project Structure
+---
+
+## Project Structure
 
 ```
 src/
-├── components/          # Reusable UI components
-│   ├── ui/             # shadcn/ui components
-│   └── ...             # Feature components
-├── pages/              # Route pages
-├── hooks/              # Custom React hooks
-├── integrations/       # Third-party integrations
-└── lib/                # Utility functions
+├── components/     # UI components
+│   └── ui/         # Base components (shadcn/ui)
+├── pages/          # Route pages
+├── hooks/          # Custom hooks
+├── integrations/   # Third-party integrations
+└── lib/            # Utilities
 
 supabase/
-├── functions/          # Edge functions
-│   ├── ai-match/       # AI tutor matching
-│   ├── create-session-payment/  # Stripe payments
-│   └── ...
-└── migrations/         # Database migrations
+├── functions/      # Edge functions
+└── migrations/     # Database migrations
 ```
 
-## 💳 Payment Flow
+---
+
+## Payment Flow
 
 1. Student books a session with a tutor
-2. Payment is processed via Stripe Checkout
-3. Platform retains 8% as service fee
-4. Remaining 92% is transferred to tutor's connected Stripe account
+2. Payment processed via Stripe Checkout
+3. Platform takes an 8% service fee
+4. Tutor receives 92% directly to their connected Stripe account
 
-## 🔐 Security
+---
 
-- Row Level Security (RLS) policies on all database tables
-- Secure authentication via Supabase Auth
-- Stripe Connect for PCI-compliant payment handling
-- Protected API routes with JWT verification
+## Security
 
-## 📱 Responsive Design
+- Row Level Security on all database tables
+- Authentication via Supabase Auth
+- PCI-compliant payment handling through Stripe Connect
+- JWT verification on protected routes
 
-BrightMinds is fully responsive and optimized for:
+---
+
+## Responsive Design
+
+The platform works across all devices:
 - Desktop (1920px+)
 - Laptop (1024px - 1919px)
 - Tablet (768px - 1023px)
 - Mobile (320px - 767px)
 
-## 🤝 Contributing
+---
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Contributing
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📧 Contact
-
-For questions or support, please reach out via the contact form on the platform.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
 
 ---
 
-Built with ❤️ for students and tutors everywhere.
+## License
+
+MIT
+
+---
+
+## Contact
+
+Questions or feedback? Reach out through the contact form on the platform.
