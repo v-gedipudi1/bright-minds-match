@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy, Users } from "lucide-react";
+import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy, Users, Shield } from "lucide-react";
 import { toast } from "sonner";
 import MyClasses from "@/components/MyClasses";
 import MyStudents from "@/components/MyStudents";
@@ -34,6 +35,7 @@ interface NotificationCounts {
 
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
+  const { isAdmin } = useAdminCheck();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -166,6 +168,22 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Admin Monitoring Card */}
+          {isAdmin && (
+            <Link to="/monitoring">
+              <Card className="hover:shadow-medium transition-shadow cursor-pointer group border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-amber-600/10">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
+                    <Shield className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Monitoring</p>
+                    <p className="text-sm text-muted-foreground">Admin panel</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          )}
           {isStudent && (
             <>
               <Link to="/leaderboard">

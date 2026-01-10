@@ -14,6 +14,7 @@ import BookSession from "./pages/BookSession";
 import Sessions from "./pages/Sessions";
 import Messages from "./pages/Messages";
 import Leaderboard from "./pages/Leaderboard";
+import Monitoring from "./pages/Monitoring";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/monitoring" element={<Monitoring />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
