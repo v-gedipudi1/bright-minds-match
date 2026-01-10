@@ -35,7 +35,7 @@ interface NotificationCounts {
 
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
-  const { isAdmin } = useAdminCheck();
+  const { isAdmin, loading: adminLoading } = useAdminCheck();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -114,7 +114,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  if (loading || loadingData) {
+  if (loading || loadingData || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
