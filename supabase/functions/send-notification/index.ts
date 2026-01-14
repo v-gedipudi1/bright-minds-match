@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
     console.log("Sending email to:", payload.recipientEmail);
     
     const { data, error } = await resend.emails.send({
-      from: "BrightMinds <notifications@resend.dev>",
+      from: "BrightMinds <notifications@brightmindsmatch.org>",
       to: payload.recipientEmail,
       subject: emailSubject,
       html: emailBody,
