@@ -98,6 +98,35 @@ const BookSessionForm = ({ open, onOpenChange, students, onSuccess }: BookSessio
 
       if (error) throw error;
 
+      // Get tutor's name
+      const { data: tutorProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      // Send email notifications to each student
+      for (const studentId of selectedStudents) {
+        const { data: studentProfile } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("user_id", studentId)
+          .single();
+
+        if (studentProfile?.email) {
+          supabase.functions.invoke("send-notification", {
+            body: {
+              type: "session_booked",
+              recipientEmail: studentProfile.email,
+              recipientName: studentProfile.full_name,
+              senderName: tutorProfile?.full_name || "Your tutor",
+              subject: subject.trim(),
+              sessionDate: format(scheduledAt, "PPP 'at' p"),
+            },
+          }).catch(console.error);
+        }
+      }
+
       // Reset form
       setSelectedStudents([]);
       setSelectedDate(undefined);

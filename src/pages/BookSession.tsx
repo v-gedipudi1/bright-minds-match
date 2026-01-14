@@ -208,6 +208,32 @@ const BookSession = () => {
 
       if (error) throw error;
 
+      // Send email notification to tutor
+      const { data: tutorProfile } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .eq("user_id", tutor.user_id)
+        .single();
+
+      const { data: studentProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      if (tutorProfile?.email) {
+        supabase.functions.invoke("send-notification", {
+          body: {
+            type: "session_booked",
+            recipientEmail: tutorProfile.email,
+            recipientName: tutorProfile.full_name,
+            senderName: studentProfile?.full_name || "A student",
+            subject,
+            sessionDate: format(scheduledAt, "PPP 'at' p"),
+          },
+        }).catch(console.error);
+      }
+
       setBooked(true);
       toast.success("Session booked successfully!");
     } catch (error) {

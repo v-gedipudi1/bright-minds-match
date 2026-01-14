@@ -224,6 +224,31 @@ const Messages = () => {
         .update({ last_message_at: new Date().toISOString() })
         .eq("id", selectedConversation.id);
 
+      // Send email notification to recipient
+      const { data: recipientProfile } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .eq("user_id", recipientId)
+        .single();
+
+      const { data: senderProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      if (recipientProfile?.email) {
+        supabase.functions.invoke("send-notification", {
+          body: {
+            type: "new_message",
+            recipientEmail: recipientProfile.email,
+            recipientName: recipientProfile.full_name,
+            senderName: senderProfile?.full_name || "Someone",
+            messagePreview: newMessage.trim().substring(0, 100),
+          },
+        }).catch(console.error);
+      }
+
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
