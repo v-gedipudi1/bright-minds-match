@@ -5,8 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X, Video, ExternalLink } from "lucide-react";
+import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X, Video, ExternalLink, Ban } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Session {
   id: string;
@@ -151,6 +162,8 @@ const Sessions = () => {
 
       if (newStatus === "awaiting_payment") {
         toast.success("Session accepted! Waiting for student payment.");
+      } else if (newStatus === "cancelled") {
+        toast.success("Session cancelled successfully");
       } else {
         toast.success(`Session ${status}`);
       }
@@ -160,6 +173,10 @@ const Sessions = () => {
     } finally {
       setUpdatingSession(null);
     }
+  };
+
+  const handleCancelSession = async (sessionId: string) => {
+    await updateSessionStatus(sessionId, "cancelled");
   };
 
   const handlePayment = async (session: Session) => {
@@ -562,6 +579,48 @@ const Sessions = () => {
                             <XCircle className="w-4 h-4" />
                           </Button>
                         </div>
+                      )}
+                      
+                      {/* Cancel button for confirmed or awaiting_payment sessions - both roles */}
+                      {(session.status === "confirmed" || session.status === "awaiting_payment") && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              disabled={updatingSession === session.id}
+                            >
+                              {updatingSession === session.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <Ban className="w-4 h-4" />
+                                  Cancel
+                                </>
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Cancel Session?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to cancel this {session.subject} session
+                                {session.status === "confirmed" && " that has already been paid for"}?
+                                {session.status === "confirmed" && " Refunds may need to be processed separately."}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Keep Session</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleCancelSession(session.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Yes, Cancel Session
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       )}
                     </div>
                   </div>
