@@ -185,7 +185,8 @@ const Sessions = () => {
       }
 
       if (data?.url) {
-        window.open(data.url, "_blank");
+        // Use location.href instead of window.open to avoid popup blockers on mobile
+        window.location.href = data.url;
       }
     } catch (error) {
       console.error("Error creating payment:", error);
