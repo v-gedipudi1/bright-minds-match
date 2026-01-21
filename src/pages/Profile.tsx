@@ -22,6 +22,7 @@ interface Profile {
   role: "student" | "tutor";
   avatar_url: string | null;
   bio: string | null;
+  phone_number: string | null;
 }
 
 interface TutorProfile {
@@ -58,6 +59,7 @@ const Profile = () => {
   // Form state
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [subjects, setSubjects] = useState("");
   const [hourlyRate, setHourlyRate] = useState("");
   const [experienceYears, setExperienceYears] = useState("");
@@ -92,6 +94,7 @@ const Profile = () => {
         setProfile(profileData);
         setFullName(profileData?.full_name || "");
         setBio(profileData?.bio || "");
+        setPhoneNumber(profileData?.phone_number || "");
 
         if (profileData?.role === "tutor") {
           const { data: tutorData, error: tutorError } = await supabase
@@ -188,7 +191,7 @@ const Profile = () => {
       // Update main profile
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ full_name: fullName, bio })
+        .update({ full_name: fullName, bio, phone_number: phoneNumber || null })
         .eq("user_id", user.id);
 
       if (profileError) throw profileError;
@@ -335,6 +338,19 @@ const Profile = () => {
                 placeholder="Tell us about yourself..."
                 rows={4}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+1 (555) 123-4567"
+              />
+              <p className="text-xs text-muted-foreground">
+                Used for SMS notifications about messages and session updates
+              </p>
             </div>
           </CardContent>
         </Card>

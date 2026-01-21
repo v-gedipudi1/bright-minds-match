@@ -152,6 +152,31 @@ const MyClasses = () => {
 
       if (error) throw error;
 
+      // Send notification to tutor
+      const { data: tutorProfile } = await supabase
+        .from("profiles")
+        .select("email, full_name, phone_number")
+        .eq("user_id", tutor.user_id)
+        .single();
+
+      const { data: studentProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      if (tutorProfile?.email) {
+        supabase.functions.invoke("send-notification", {
+          body: {
+            type: "class_joined",
+            recipientEmail: tutorProfile.email,
+            recipientName: tutorProfile.full_name,
+            recipientPhone: tutorProfile.phone_number,
+            senderName: studentProfile?.full_name || "A student",
+          },
+        }).catch(console.error);
+      }
+
       setSuccessDialog({ open: true, tutorName: tutor.full_name });
       setSearchOpen(false);
       setSearchQuery("");

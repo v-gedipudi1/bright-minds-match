@@ -105,11 +105,11 @@ const BookSessionForm = ({ open, onOpenChange, students, onSuccess }: BookSessio
         .eq("user_id", user.id)
         .single();
 
-      // Send email notifications to each student
+      // Send email and SMS notifications to each student
       for (const studentId of selectedStudents) {
         const { data: studentProfile } = await supabase
           .from("profiles")
-          .select("email, full_name")
+          .select("email, full_name, phone_number")
           .eq("user_id", studentId)
           .single();
 
@@ -119,6 +119,7 @@ const BookSessionForm = ({ open, onOpenChange, students, onSuccess }: BookSessio
               type: "session_booked",
               recipientEmail: studentProfile.email,
               recipientName: studentProfile.full_name,
+              recipientPhone: studentProfile.phone_number,
               senderName: tutorProfile?.full_name || "Your tutor",
               subject: subject.trim(),
               sessionDate: format(scheduledAt, "PPP 'at' p"),

@@ -104,6 +104,33 @@ const BookSession = () => {
         if (tutorData?.subjects?.length > 0) {
           setSubject(tutorData.subjects[0]);
         }
+
+        // Send profile view notification to tutor (only if viewer is a different user)
+        if (user && user.id !== tutorId) {
+          const { data: viewerProfile } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("user_id", user.id)
+            .single();
+
+          const { data: tutorProfileFull } = await supabase
+            .from("profiles")
+            .select("email, phone_number")
+            .eq("user_id", tutorId)
+            .single();
+
+          if (tutorProfileFull?.email) {
+            supabase.functions.invoke("send-notification", {
+              body: {
+                type: "profile_viewed",
+                recipientEmail: tutorProfileFull.email,
+                recipientName: profileData?.full_name || "Tutor",
+                recipientPhone: tutorProfileFull.phone_number,
+                senderName: viewerProfile?.full_name || "A student",
+              },
+            }).catch(console.error);
+          }
+        }
       } catch (error) {
         console.error("Error fetching tutor:", error);
         toast.error("Failed to load tutor profile");
@@ -113,7 +140,7 @@ const BookSession = () => {
     };
 
     fetchTutor();
-  }, [tutorId]);
+  }, [tutorId, user]);
 
   // Get available time slots for the selected date
   const availableTimeSlots = useMemo(() => {
@@ -208,10 +235,10 @@ const BookSession = () => {
 
       if (error) throw error;
 
-      // Send email notification to tutor
+      // Send email and SMS notification to tutor
       const { data: tutorProfile } = await supabase
         .from("profiles")
-        .select("email, full_name")
+        .select("email, full_name, phone_number")
         .eq("user_id", tutor.user_id)
         .single();
 
@@ -227,6 +254,7 @@ const BookSession = () => {
             type: "session_booked",
             recipientEmail: tutorProfile.email,
             recipientName: tutorProfile.full_name,
+            recipientPhone: tutorProfile.phone_number,
             senderName: studentProfile?.full_name || "A student",
             subject,
             sessionDate: format(scheduledAt, "PPP 'at' p"),
