@@ -29,12 +29,12 @@ const AboutSection = () => {
                 </h3>
                 <div className="space-y-4 text-muted-foreground leading-relaxed">
                   <p>
-                    Bright Minds Tutoring Service began as a simple mission: Venni Gedipudi 
+                    Bright Minds Tutoring Service began as a simple mission: our founder 
                     tutoring neighborhood kids and relatives in high school. After starting 
                     college, word spread through referrals, and the student base grew rapidly.
                   </p>
                   <p>
-                    To meet demand, Venni began recruiting working professionals and advanced 
+                    To meet demand, our founder began recruiting working professionals and advanced
                     college students, building a team of passionate educators. As the student base 
                     and tutor network grew, a pattern emerged, students thrived most when paired with 
                     the <span className="text-foreground font-medium">right</span> tutor.
@@ -120,8 +120,8 @@ const AboutSection = () => {
                       <Users className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">Venni Gedipudi</p>
-                      <p className="text-sm text-muted-foreground">Founder, Bright Minds Tutoring Service</p>
+                      <p className="font-medium text-foreground">The Founder</p>
+                      <p className="text-sm text-muted-foreground">Bright Minds Tutoring Service</p>
                     </div>
                   </div>
                 </div>
