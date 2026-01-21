@@ -13,6 +13,7 @@ const authSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   fullName: z.string().min(2, "Name must be at least 2 characters").optional(),
+  phoneNumber: z.string().regex(/^[\d\s\-+()]*$/, "Please enter a valid phone number").optional(),
 });
 
 const TUTOR_ACCESS_CODE = "7904";
@@ -25,10 +26,11 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [role, setRole] = useState<"student" | "tutor">(roleFromUrl || "student");
   const [tutorAccessCode, setTutorAccessCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string; tutorAccessCode?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string; phoneNumber?: string; tutorAccessCode?: string }>({});
 
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -42,9 +44,9 @@ const Auth = () => {
   const validateForm = () => {
     try {
       if (isSignUp) {
-        authSchema.parse({ email, password, fullName });
+        authSchema.parse({ email, password, fullName, phoneNumber });
       } else {
-        authSchema.omit({ fullName: true }).parse({ email, password });
+        authSchema.omit({ fullName: true, phoneNumber: true }).parse({ email, password });
       }
       setErrors({});
       return true;
@@ -80,7 +82,7 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, fullName, role);
+        const { error } = await signUp(email, password, fullName, role, phoneNumber);
         if (error) {
           if (error.message.includes("already registered")) {
             toast.error("This email is already registered. Please sign in instead.");
@@ -160,6 +162,24 @@ const Auth = () => {
                     {errors.fullName && (
                       <p className="text-sm text-destructive">{errors.fullName}</p>
                     )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      placeholder="Enter your phone number (optional)"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      disabled={isLoading}
+                    />
+                    {errors.phoneNumber && (
+                      <p className="text-sm text-destructive">{errors.phoneNumber}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      We'll use this to send you important notifications via SMS
+                    </p>
                   </div>
 
                   <div className="space-y-2">
