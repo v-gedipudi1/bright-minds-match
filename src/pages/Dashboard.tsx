@@ -9,6 +9,7 @@ import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2
 import { toast } from "sonner";
 import MyClasses from "@/components/MyClasses";
 import MyStudents from "@/components/MyStudents";
+import { PhoneNumberPrompt } from "@/components/PhoneNumberPrompt";
 
 interface Profile {
   id: string;
@@ -376,6 +377,9 @@ const Dashboard = () => {
           {isStudent && <MyClasses />}
           {isTutor && <MyStudents />}
         </div>
+
+        {/* Phone Number Prompt for existing users */}
+        <PhoneNumberPrompt />
       </main>
     </div>
   );

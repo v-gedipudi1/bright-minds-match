@@ -259,6 +259,8 @@ const Sessions = () => {
     }
 
     try {
+      const session = sessions.find(s => s.id === sessionId);
+      
       const { error } = await supabase
         .from("sessions")
         .update({ meeting_link: newMeetingLink.trim() })
@@ -269,6 +271,37 @@ const Sessions = () => {
       setSessions((prev) =>
         prev.map((s) => (s.id === sessionId ? { ...s, meeting_link: newMeetingLink.trim() } : s))
       );
+
+      // Notify the student about the meeting link
+      if (session) {
+        const { data: studentProfile } = await supabase
+          .from("profiles")
+          .select("email, full_name, phone_number")
+          .eq("user_id", session.student_id)
+          .single();
+
+        const { data: tutorProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", session.tutor_id)
+          .single();
+
+        if (studentProfile?.email) {
+          supabase.functions.invoke("send-notification", {
+            body: {
+              type: "meeting_link_sent",
+              recipientEmail: studentProfile.email,
+              recipientName: studentProfile.full_name,
+              recipientPhone: studentProfile.phone_number,
+              senderName: tutorProfile?.full_name || "Your tutor",
+              subject: session.subject,
+              sessionDate: new Date(session.scheduled_at).toLocaleString(),
+              meetingLink: newMeetingLink.trim(),
+            },
+          }).catch(console.error);
+        }
+      }
+
       toast.success("Meeting link added successfully");
     } catch (error) {
       console.error("Error updating meeting link:", error);

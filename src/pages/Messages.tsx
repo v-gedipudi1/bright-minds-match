@@ -224,10 +224,10 @@ const Messages = () => {
         .update({ last_message_at: new Date().toISOString() })
         .eq("id", selectedConversation.id);
 
-      // Send email notification to recipient
+      // Send email and SMS notification to recipient
       const { data: recipientProfile } = await supabase
         .from("profiles")
-        .select("email, full_name")
+        .select("email, full_name, phone_number")
         .eq("user_id", recipientId)
         .single();
 
@@ -243,6 +243,7 @@ const Messages = () => {
             type: "new_message",
             recipientEmail: recipientProfile.email,
             recipientName: recipientProfile.full_name,
+            recipientPhone: recipientProfile.phone_number,
             senderName: senderProfile?.full_name || "Someone",
             messagePreview: newMessage.trim().substring(0, 100),
           },
