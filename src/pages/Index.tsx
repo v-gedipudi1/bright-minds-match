@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import PricingBanner from "@/components/PricingBanner";
+import AIMatchingCTA from "@/components/AIMatchingCTA";
 import HowItWorks from "@/components/HowItWorks";
 import SubjectCategories from "@/components/SubjectCategories";
 import AIMatchingSection from "@/components/AIMatchingSection";
@@ -15,6 +16,7 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <PricingBanner />
+      <AIMatchingCTA />
       <HowItWorks />
       <SubjectCategories />
       <AIMatchingSection />

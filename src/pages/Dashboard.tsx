@@ -5,7 +5,7 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy, Users, Shield } from "lucide-react";
+import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy, Users, Shield, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import MyClasses from "@/components/MyClasses";
 import MyStudents from "@/components/MyStudents";
@@ -140,6 +140,12 @@ const Dashboard = () => {
             </span>
           </Link>
           <div className="flex items-center gap-4">
+            <Link to="/">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Homepage
+              </Button>
+            </Link>
             <Link to="/profile">
               <Button variant="ghost" size="sm">
                 <User className="w-4 h-4 mr-2" />

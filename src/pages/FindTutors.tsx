@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, ArrowLeft, Search, Star, Clock, Globe, Loader2, User, X } from "lucide-react";
+import { Sparkles, ArrowLeft, Search, Star, Clock, Loader2, User, X, Calculator, FlaskConical, BookOpen, Code, Globe, Music, Palette, TrendingUp, Home } from "lucide-react";
 import { toast } from "sonner";
 
 interface Tutor {
@@ -23,6 +23,17 @@ interface Tutor {
   } | null;
 }
 
+const subjectCategories = [
+  { name: "Mathematics", icon: Calculator },
+  { name: "Science", icon: FlaskConical },
+  { name: "Languages", icon: Globe },
+  { name: "Programming", icon: Code },
+  { name: "Literature", icon: BookOpen },
+  { name: "Music", icon: Music },
+  { name: "Art & Design", icon: Palette },
+  { name: "Business", icon: TrendingUp },
+];
+
 const FindTutors = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -34,6 +45,10 @@ const FindTutors = () => {
 
   const clearSubjectFilter = () => {
     setSearchParams({});
+  };
+
+  const handleSubjectClick = (subjectName: string) => {
+    setSearchParams({ subject: subjectName });
   };
 
   useEffect(() => {
@@ -132,25 +147,46 @@ const FindTutors = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-            {subjectFilter ? `Tutors Who Teach ${subjectFilter}` : "Find Your Perfect Tutor"}
-          </h1>
-          <p className="text-muted-foreground mb-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="font-display text-3xl font-bold text-foreground">
+              {subjectFilter ? `Tutors Who Teach ${subjectFilter}` : "Find Your Perfect Tutor"}
+            </h1>
+            <Link to="/">
+              <Button variant="outline" size="sm">
+                <Home className="w-4 h-4 mr-2" />
+                Homepage
+              </Button>
+            </Link>
+          </div>
+          <p className="text-muted-foreground mb-6">
             Browse our expert tutors and book a session
           </p>
 
-          {/* Subject Filter Badge */}
-          {subjectFilter && (
-            <div className="mb-4">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                Filtering by: {subjectFilter}
-                <button onClick={clearSubjectFilter} className="hover:bg-primary/20 rounded-full p-0.5">
-                  <X className="w-4 h-4" />
-                </button>
-              </span>
+          {/* Subject Categories - Always visible */}
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-muted-foreground mb-3">Browse by Subject</h2>
+            <div className="flex flex-wrap gap-2">
+              {subjectCategories.map((subject) => {
+                const IconComponent = subject.icon;
+                const isActive = subjectFilter === subject.name;
+                return (
+                  <button
+                    key={subject.name}
+                    onClick={() => isActive ? clearSubjectFilter() : handleSubjectClick(subject.name)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive 
+                        ? "bg-primary text-primary-foreground shadow-soft" 
+                        : "bg-card border border-border hover:border-primary/30 hover:bg-muted text-foreground"
+                    }`}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    {subject.name}
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </div>
 
           {/* Search */}
           <div className="relative mb-8">
