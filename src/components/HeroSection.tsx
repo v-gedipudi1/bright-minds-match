@@ -129,7 +129,7 @@ const HeroSection = () => {
                     </div>
                   </div>
 
-                  <Link to="/auth">
+                  <Link to="/ai-matching">
                     <Button variant="hero" size="sm" className="group">
                       <Brain className="w-4 h-4 mr-1.5 group-hover:animate-pulse" />
                       Start AI Matching
