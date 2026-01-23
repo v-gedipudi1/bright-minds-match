@@ -15,6 +15,7 @@ import Sessions from "./pages/Sessions";
 import Messages from "./pages/Messages";
 import Leaderboard from "./pages/Leaderboard";
 import Monitoring from "./pages/Monitoring";
+import TutorManagement from "./pages/TutorManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/monitoring" element={<Monitoring />} />
+            <Route path="/tutor-management" element={<TutorManagement />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

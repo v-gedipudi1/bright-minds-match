@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useFounderCheck } from "@/hooks/useFounderCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy, Users, Shield, ArrowLeft } from "lucide-react";
+import { Sparkles, Calendar, BookOpen, Star, Clock, LogOut, User, Brain, Loader2, MessageSquare, Settings, Trophy, Users, Shield, ArrowLeft, Crown } from "lucide-react";
 import { toast } from "sonner";
 import MyClasses from "@/components/MyClasses";
 import MyStudents from "@/components/MyStudents";
@@ -37,6 +38,7 @@ interface NotificationCounts {
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminCheck();
+  const { isFounder, loading: founderLoading } = useFounderCheck();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -115,7 +117,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  if (loading || loadingData || adminLoading) {
+  if (loading || loadingData || adminLoading || founderLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -175,6 +177,22 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Founder Tutor Management Card */}
+          {isFounder && (
+            <Link to="/tutor-management">
+              <Card className="hover:shadow-medium transition-shadow cursor-pointer group border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-amber-600/10">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
+                    <Crown className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Tutors</p>
+                    <p className="text-sm text-muted-foreground">Manage all tutors</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          )}
           {/* Admin Monitoring Card */}
           {isAdmin && (
             <Link to="/monitoring">
