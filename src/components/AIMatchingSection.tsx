@@ -66,7 +66,7 @@ const AIMatchingSection = () => {
               ))}
             </div>
 
-            <Link to="/auth">
+            <Link to="/ai-matching">
               <Button variant="hero" size="lg">
                 Try AI Matching Free
                 <ArrowRight className="w-5 h-5" />
