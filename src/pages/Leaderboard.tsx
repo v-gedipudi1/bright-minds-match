@@ -59,11 +59,26 @@ const Leaderboard = () => {
           });
         }
 
-        // Combine tutor data with profiles
-        const tutorsWithProfiles = (tutorData || []).map(tutor => ({
-          ...tutor,
-          profile: profilesMap.get(tutor.user_id) || null,
-        }));
+        // Combine tutor data with profiles and sort by sessions, then rating, then name
+        const tutorsWithProfiles = (tutorData || [])
+          .map(tutor => ({
+            ...tutor,
+            profile: profilesMap.get(tutor.user_id) || null,
+          }))
+          .sort((a, b) => {
+            // First by sessions (desc)
+            if ((b.total_sessions || 0) !== (a.total_sessions || 0)) {
+              return (b.total_sessions || 0) - (a.total_sessions || 0);
+            }
+            // Then by rating (desc)
+            if ((b.rating || 0) !== (a.rating || 0)) {
+              return (b.rating || 0) - (a.rating || 0);
+            }
+            // Finally alphabetically by name
+            const nameA = a.profile?.full_name || "ZZZ";
+            const nameB = b.profile?.full_name || "ZZZ";
+            return nameA.localeCompare(nameB);
+          });
 
         setTutors(tutorsWithProfiles);
       } catch (error) {
