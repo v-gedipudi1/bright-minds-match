@@ -414,6 +414,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_founder: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "founder"
