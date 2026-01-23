@@ -7,12 +7,16 @@ const corsHeaders = {
 };
 
 // Input validation helpers
-const validateString = (value: unknown, fieldName: string, maxLength: number = 1000): string => {
+const validateString = (value: unknown, fieldName: string, maxLength: number = 1000, truncate: boolean = false): string => {
   if (value === undefined || value === null) return "";
   if (typeof value !== 'string') {
     throw new Error(`${fieldName} must be a string`);
   }
+  // Truncate if allowed and exceeds max length (useful for database data)
   if (value.length > maxLength) {
+    if (truncate) {
+      return value.substring(0, maxLength);
+    }
     throw new Error(`${fieldName} must be less than ${maxLength} characters`);
   }
   return value;
@@ -69,8 +73,8 @@ const validateTutor = (tutor: unknown, index: number) => {
     full_name: validateString(t.full_name, `tutors[${index}].full_name`, 100),
     subjects: validateStringArray(t.subjects, `tutors[${index}].subjects`, 20),
     experience_years: typeof t.experience_years === 'number' ? Math.min(Math.max(0, t.experience_years), 100) : 0,
-    teaching_style: validateString(t.teaching_style, `tutors[${index}].teaching_style`, 500),
-    education: validateString(t.education, `tutors[${index}].education`, 500),
+    teaching_style: validateString(t.teaching_style, `tutors[${index}].teaching_style`, 500, true), // Truncate long teaching styles
+    education: validateString(t.education, `tutors[${index}].education`, 500, true), // Truncate long education
     rating: typeof t.rating === 'number' ? Math.min(Math.max(0, t.rating), 5) : 0,
   };
 };
