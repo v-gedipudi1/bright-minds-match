@@ -60,6 +60,7 @@ const BookSession = () => {
   const [subject, setSubject] = useState("");
   const [notes, setNotes] = useState("");
   const [duration, setDuration] = useState("60");
+  const [viewingTimezone, setViewingTimezone] = useState<string>(""); // Will be set to tutor's timezone initially
 
   useEffect(() => {
     if (!loading && !user) {
@@ -101,8 +102,11 @@ const BookSession = () => {
           rating: tutorData?.rating || 0,
           total_reviews: tutorData?.total_reviews || 0,
           availability: tutorData?.availability as unknown as WeeklyAvailability | null,
-          timezone: tutorData?.timezone || "America/Los_Angeles",
+          timezone: tutorData?.timezone || "America/New_York",
         });
+        
+        // Set viewing timezone to tutor's timezone initially
+        setViewingTimezone(tutorData?.timezone || "America/New_York");
 
         if (tutorData?.subjects?.length > 0) {
           setSubject(tutorData.subjects[0]);
@@ -225,6 +229,9 @@ const BookSession = () => {
 
       const price = (tutor.hourly_rate * parseInt(duration)) / 60;
 
+      // Determine which timezone label the student was viewing
+      const studentTzViewLabel = getTimezoneLabel(viewingTimezone);
+
       const { error } = await supabase.from("sessions").insert({
         student_id: user.id,
         tutor_id: tutor.user_id,
@@ -234,6 +241,7 @@ const BookSession = () => {
         notes,
         price,
         status: "pending",
+        student_timezone_view: studentTzViewLabel,
       });
 
       if (error) throw error;
@@ -261,6 +269,7 @@ const BookSession = () => {
             senderName: studentProfile?.full_name || "A student",
             subject,
             sessionDate: format(scheduledAt, "PPP 'at' p"),
+            studentTimezoneView: getTimezoneLabel(viewingTimezone),
           },
         }).catch(console.error);
       }
@@ -476,13 +485,24 @@ const BookSession = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <Label>Select Time</Label>
-                    {tutor.timezone && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Globe className="w-3 h-3" />
-                        Times shown in {getTimezoneLabel(tutor.timezone)}
-                      </span>
+                    {tutor.timezone && viewingTimezone && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Globe className="w-3 h-3" />
+                          Times shown in {getTimezoneLabel(viewingTimezone)}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs text-primary hover:text-primary/80 underline"
+                          onClick={() => setViewingTimezone(getOtherTimezone(viewingTimezone))}
+                        >
+                          View in {getTimezoneLabel(getOtherTimezone(viewingTimezone))}
+                        </Button>
+                      </div>
                     )}
                   </div>
                   {!selectedDate ? (
@@ -498,8 +518,12 @@ const BookSession = () => {
                     <>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1">
                         {availableTimeSlots.map((time) => {
-                          const otherTz = getOtherTimezone(tutor.timezone);
-                          const convertedTime = convertTime(time, tutor.timezone, otherTz);
+                          // Convert time to viewing timezone if different from tutor's timezone
+                          const displayTime = viewingTimezone !== tutor.timezone 
+                            ? convertTime(time, tutor.timezone, viewingTimezone)
+                            : time;
+                          const otherTz = getOtherTimezone(viewingTimezone);
+                          const convertedTime = convertTime(displayTime, viewingTimezone, otherTz);
                           return (
                             <Button
                               key={time}
@@ -512,7 +536,7 @@ const BookSession = () => {
                                 selectedTime === time && "ring-2 ring-primary ring-offset-2"
                               )}
                             >
-                              <span className="font-semibold">{formatTime12hr(time)} {getTimezoneLabel(tutor.timezone)}</span>
+                              <span className="font-semibold">{formatTime12hr(displayTime)} {getTimezoneLabel(viewingTimezone)}</span>
                               <span className="text-xs opacity-70">
                                 = {formatTime12hr(convertedTime)} {getTimezoneLabel(otherTz)}
                               </span>
@@ -523,10 +547,10 @@ const BookSession = () => {
                       {selectedTime && (
                         <div className="mt-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
                           <p className="text-sm font-medium text-foreground">
-                            Selected: {formatTime12hr(selectedTime)} {getTimezoneLabel(tutor.timezone)}
+                            Selected: {formatTime12hr(viewingTimezone !== tutor.timezone ? convertTime(selectedTime, tutor.timezone, viewingTimezone) : selectedTime)} {getTimezoneLabel(viewingTimezone)}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            That's {formatTime12hr(convertTime(selectedTime, tutor.timezone, getOtherTimezone(tutor.timezone)))} {getTimezoneLabel(getOtherTimezone(tutor.timezone))}
+                            That's {formatTime12hr(viewingTimezone !== tutor.timezone ? selectedTime : convertTime(selectedTime, tutor.timezone, getOtherTimezone(tutor.timezone)))} {getTimezoneLabel(viewingTimezone !== tutor.timezone ? tutor.timezone : getOtherTimezone(tutor.timezone))}
                           </p>
                         </div>
                       )}

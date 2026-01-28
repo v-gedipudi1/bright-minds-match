@@ -13,6 +13,7 @@ interface NotificationPayload {
   sessionDate?: string;
   messagePreview?: string;
   meetingLink?: string;
+  studentTimezoneView?: string; // The timezone the student was viewing when they booked (PST or EST)
 }
 
 async function sendSMS(to: string, message: string): Promise<{ success: boolean; error?: string }> {
@@ -89,7 +90,8 @@ Deno.serve(async (req) => {
         break;
 
       case "session_booked":
-        smsMessage = `BrightMinds: New ${payload.subject || "tutoring"} session booked with ${payload.senderName || "a user"} for ${payload.sessionDate || "TBD"}.`;
+        const tzInfo = payload.studentTimezoneView ? ` (student viewed in ${payload.studentTimezoneView})` : "";
+        smsMessage = `BrightMinds: New ${payload.subject || "tutoring"} session booked with ${payload.senderName || "a user"} for ${payload.sessionDate || "TBD"}${tzInfo}.`;
         break;
 
       case "session_updated":
