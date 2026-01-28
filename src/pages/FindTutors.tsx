@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, ArrowLeft, Search, Star, Clock, Loader2, User, X, Calculator, FlaskConical, BookOpen, Code, Globe, Music, Palette, TrendingUp, Home } from "lucide-react";
 import { toast } from "sonner";
+import { getTimezoneLabel } from "@/components/TimezoneDisplay";
 
 interface Tutor {
   user_id: string;
@@ -16,6 +17,7 @@ interface Tutor {
   rating: number;
   total_reviews: number;
   is_verified: boolean;
+  timezone: string | null;
   profile: {
     full_name: string;
     avatar_url: string | null;
@@ -63,7 +65,8 @@ const FindTutors = () => {
             experience_years,
             rating,
             total_reviews,
-            is_verified
+            is_verified,
+            timezone
           `);
 
         if (error) throw error;
@@ -271,6 +274,12 @@ const FindTutors = () => {
                             <Clock className="w-4 h-4" />
                             <span>{tutor.experience_years || 0}+ years</span>
                           </div>
+                          {tutor.timezone && (
+                            <div className="flex items-center gap-1">
+                              <Globe className="w-4 h-4" />
+                              <span>{getTimezoneLabel(tutor.timezone)}</span>
+                            </div>
+                          )}
                         </div>
 
                         <Link to={`/book/${tutor.user_id}`}>

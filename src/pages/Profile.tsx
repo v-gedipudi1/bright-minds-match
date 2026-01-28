@@ -32,6 +32,7 @@ interface TutorProfile {
   education: string | null;
   teaching_style: string | null;
   availability: WeeklyAvailability | null;
+  timezone: string | null;
 }
 
 interface StudentProfile {
@@ -66,6 +67,7 @@ const Profile = () => {
   const [education, setEducation] = useState("");
   const [teachingStyle, setTeachingStyle] = useState("");
   const [availability, setAvailability] = useState<WeeklyAvailability>(getDefaultAvailability());
+  const [timezone, setTimezone] = useState("America/Los_Angeles");
   const [learningGoals, setLearningGoals] = useState("");
   const [learningStyle, setLearningStyle] = useState("");
   const [personality, setPersonality] = useState("");
@@ -111,6 +113,7 @@ const Profile = () => {
             education: tutorData.education,
             teaching_style: tutorData.teaching_style,
             availability: tutorData.availability as unknown as WeeklyAvailability | null,
+            timezone: tutorData.timezone,
           } : null);
           setSubjects((tutorData?.subjects || []).join(", "));
           setHourlyRate(String(tutorData?.hourly_rate || ""));
@@ -120,6 +123,8 @@ const Profile = () => {
           // Load availability or use default
           const savedAvailability = tutorData?.availability as unknown as WeeklyAvailability | null;
           setAvailability(savedAvailability || getDefaultAvailability());
+          // Load timezone
+          setTimezone(tutorData?.timezone || "America/Los_Angeles");
         } else {
           const { data: studentData, error: studentError } = await supabase
             .from("student_profiles")
@@ -206,6 +211,7 @@ const Profile = () => {
             education,
             teaching_style: teachingStyle,
             availability: JSON.parse(JSON.stringify(availability)),
+            timezone,
           })
           .eq("user_id", user.id);
 
@@ -418,7 +424,12 @@ const Profile = () => {
             </Card>
 
             <div className="mb-6">
-              <AvailabilityScheduler availability={availability} onChange={setAvailability} />
+              <AvailabilityScheduler 
+                availability={availability} 
+                onChange={setAvailability}
+                timezone={timezone}
+                onTimezoneChange={setTimezone}
+              />
             </div>
 
             {/* Stripe Connect for Payments */}

@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, Globe } from "lucide-react";
 
 interface TimeSlot {
   start: string;
@@ -47,12 +47,19 @@ export const getDefaultAvailability = (): WeeklyAvailability => ({
   sunday: { enabled: false, slots: [] },
 });
 
+export const TIMEZONE_OPTIONS = [
+  { value: "America/Los_Angeles", label: "Pacific Time (PST)" },
+  { value: "America/New_York", label: "Eastern Time (EST)" },
+] as const;
+
 interface AvailabilitySchedulerProps {
   availability: WeeklyAvailability;
   onChange: (availability: WeeklyAvailability) => void;
+  timezone: string;
+  onTimezoneChange: (timezone: string) => void;
 }
 
-const AvailabilityScheduler = ({ availability, onChange }: AvailabilitySchedulerProps) => {
+const AvailabilityScheduler = ({ availability, onChange, timezone, onTimezoneChange }: AvailabilitySchedulerProps) => {
   // Ensure we have a complete availability object with all days
   const safeAvailability: WeeklyAvailability = {
     monday: availability?.monday || { enabled: false, slots: [] },
@@ -127,7 +134,34 @@ const AvailabilityScheduler = ({ availability, onChange }: AvailabilityScheduler
           Set your weekly availability so students can book sessions during your open hours
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+        {/* Timezone Selector */}
+        <div className="p-4 rounded-lg bg-muted/50 border border-border">
+          <div className="flex items-center gap-3 mb-3">
+            <Globe className="w-5 h-5 text-primary" />
+            <div>
+              <Label className="text-base font-semibold">Your Timezone</Label>
+              <p className="text-sm text-muted-foreground">
+                Students will see your availability converted to their timezone
+              </p>
+            </div>
+          </div>
+          <Select value={timezone} onValueChange={onTimezoneChange}>
+            <SelectTrigger className="w-full max-w-xs">
+              <SelectValue placeholder="Select your timezone" />
+            </SelectTrigger>
+            <SelectContent>
+              {TIMEZONE_OPTIONS.map((tz) => (
+                <SelectItem key={tz.value} value={tz.value}>
+                  {tz.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* Days */}
+        <div className="space-y-4">
         {DAYS.map(({ key, label }) => {
           const dayAvailability = safeAvailability[key];
           return (
@@ -201,6 +235,7 @@ const AvailabilityScheduler = ({ availability, onChange }: AvailabilityScheduler
             </div>
           );
         })}
+        </div>
       </CardContent>
     </Card>
   );

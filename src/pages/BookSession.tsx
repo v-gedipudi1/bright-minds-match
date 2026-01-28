@@ -8,8 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sparkles, ArrowLeft, Star, Clock, Calendar as CalendarIcon, Loader2, User, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
+import { Sparkles, ArrowLeft, Star, Clock, Calendar as CalendarIcon, Loader2, User, CheckCircle2, AlertCircle, MessageSquare, Globe } from "lucide-react";
 import TutorReviews from "@/components/TutorReviews";
+import TimezoneDisplay, { convertTime, formatTime12hr, getTimezoneLabel, getOtherTimezone } from "@/components/TimezoneDisplay";
 import { format, getDay } from "date-fns";
 import { toast } from "sonner";
 import { WeeklyAvailability } from "@/components/AvailabilityScheduler";
@@ -20,8 +21,8 @@ interface TimeSlot {
   end: string;
 }
 
-// Convert 24hr time to 12hr format
-const formatTime12hr = (time24: string): string => {
+// This helper is kept for backwards compatibility
+const formatTime12hrLocal = (time24: string): string => {
   const [hours, minutes] = time24.split(":").map(Number);
   const period = hours >= 12 ? "PM" : "AM";
   const hours12 = hours % 12 || 12;
@@ -41,6 +42,7 @@ interface TutorInfo {
   rating: number;
   total_reviews: number;
   availability: WeeklyAvailability | null;
+  timezone: string;
 }
 
 const BookSession = () => {
@@ -99,6 +101,7 @@ const BookSession = () => {
           rating: tutorData?.rating || 0,
           total_reviews: tutorData?.total_reviews || 0,
           availability: tutorData?.availability as unknown as WeeklyAvailability | null,
+          timezone: tutorData?.timezone || "America/Los_Angeles",
         });
 
         if (tutorData?.subjects?.length > 0) {
@@ -388,6 +391,11 @@ const BookSession = () => {
                     <Clock className="w-4 h-4" />
                     <span>{tutor.experience_years}+ years experience</span>
                   </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    <span className="font-medium text-foreground">{getTimezoneLabel(tutor.timezone)}</span>
+                    <span className="text-xs">timezone</span>
+                  </div>
                 </div>
 
                 <div className="pt-4 border-t border-border">
@@ -468,7 +476,15 @@ const BookSession = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Select Time</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Select Time</Label>
+                    {tutor.timezone && (
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Globe className="w-3 h-3" />
+                        Times shown in {getTimezoneLabel(tutor.timezone)}
+                      </span>
+                    )}
+                  </div>
                   {!selectedDate ? (
                     <p className="text-sm text-muted-foreground py-2">
                       Please select a date first
@@ -479,23 +495,42 @@ const BookSession = () => {
                       <span>No available times on this date</span>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto p-1">
-                      {availableTimeSlots.map((time) => (
-                        <Button
-                          key={time}
-                          type="button"
-                          variant={selectedTime === time ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setSelectedTime(time)}
-                          className={cn(
-                            "text-xs",
-                            selectedTime === time && "ring-2 ring-primary ring-offset-2"
-                          )}
-                        >
-                          {formatTime12hr(time)}
-                        </Button>
-                      ))}
-                    </div>
+                    <>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1">
+                        {availableTimeSlots.map((time) => {
+                          const otherTz = getOtherTimezone(tutor.timezone);
+                          const convertedTime = convertTime(time, tutor.timezone, otherTz);
+                          return (
+                            <Button
+                              key={time}
+                              type="button"
+                              variant={selectedTime === time ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setSelectedTime(time)}
+                              className={cn(
+                                "flex flex-col h-auto py-2 px-3",
+                                selectedTime === time && "ring-2 ring-primary ring-offset-2"
+                              )}
+                            >
+                              <span className="font-semibold">{formatTime12hr(time)} {getTimezoneLabel(tutor.timezone)}</span>
+                              <span className="text-xs opacity-70">
+                                = {formatTime12hr(convertedTime)} {getTimezoneLabel(otherTz)}
+                              </span>
+                            </Button>
+                          );
+                        })}
+                      </div>
+                      {selectedTime && (
+                        <div className="mt-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                          <p className="text-sm font-medium text-foreground">
+                            Selected: {formatTime12hr(selectedTime)} {getTimezoneLabel(tutor.timezone)}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            That's {formatTime12hr(convertTime(selectedTime, tutor.timezone, getOtherTimezone(tutor.timezone)))} {getTimezoneLabel(getOtherTimezone(tutor.timezone))}
+                          </p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
