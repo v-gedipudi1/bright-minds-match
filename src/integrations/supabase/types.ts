@@ -209,6 +209,7 @@ export type Database = {
           scheduled_at: string
           status: string
           student_id: string
+          student_timezone_view: string | null
           subject: string
           tutor_id: string
           updated_at: string
@@ -225,6 +226,7 @@ export type Database = {
           scheduled_at: string
           status?: string
           student_id: string
+          student_timezone_view?: string | null
           subject: string
           tutor_id: string
           updated_at?: string
@@ -241,6 +243,7 @@ export type Database = {
           scheduled_at?: string
           status?: string
           student_id?: string
+          student_timezone_view?: string | null
           subject?: string
           tutor_id?: string
           updated_at?: string

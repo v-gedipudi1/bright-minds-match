@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X, Video, ExternalLink, Ban } from "lucide-react";
+import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X, Video, ExternalLink, Ban, Globe } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -30,6 +30,7 @@ interface Session {
   meeting_link: string | null;
   tutor_id: string;
   student_id: string;
+  student_timezone_view: string | null;
   tutor_name?: string;
   student_name?: string;
   tutor_avatar?: string;
@@ -432,6 +433,13 @@ const Sessions = () => {
                           {" · "}
                           {session.duration_minutes} min
                         </p>
+                        {/* Show timezone view for tutors on pending sessions */}
+                        {userRole === "tutor" && session.student_timezone_view && session.status === "pending" && (
+                          <p className="text-xs text-primary flex items-center gap-1 mt-1">
+                            <Globe className="w-3 h-3" />
+                            Student selected time viewing in {session.student_timezone_view}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">

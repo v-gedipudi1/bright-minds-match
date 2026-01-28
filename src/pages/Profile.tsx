@@ -67,7 +67,7 @@ const Profile = () => {
   const [education, setEducation] = useState("");
   const [teachingStyle, setTeachingStyle] = useState("");
   const [availability, setAvailability] = useState<WeeklyAvailability>(getDefaultAvailability());
-  const [timezone, setTimezone] = useState("America/Los_Angeles");
+  const [timezone, setTimezone] = useState("America/New_York");
   const [learningGoals, setLearningGoals] = useState("");
   const [learningStyle, setLearningStyle] = useState("");
   const [personality, setPersonality] = useState("");
