@@ -306,6 +306,7 @@ export type Database = {
           stripe_onboarding_complete: boolean | null
           subjects: string[] | null
           teaching_style: string | null
+          timezone: string | null
           total_reviews: number | null
           total_sessions: number | null
           updated_at: string
@@ -324,6 +325,7 @@ export type Database = {
           stripe_onboarding_complete?: boolean | null
           subjects?: string[] | null
           teaching_style?: string | null
+          timezone?: string | null
           total_reviews?: number | null
           total_sessions?: number | null
           updated_at?: string
@@ -342,6 +344,7 @@ export type Database = {
           stripe_onboarding_complete?: boolean | null
           subjects?: string[] | null
           teaching_style?: string | null
+          timezone?: string | null
           total_reviews?: number | null
           total_sessions?: number | null
           updated_at?: string
