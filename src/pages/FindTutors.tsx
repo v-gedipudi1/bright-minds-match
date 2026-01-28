@@ -165,28 +165,31 @@ const FindTutors = () => {
     });
   };
 
-  const filteredTutors = tutors.filter((tutor) => {
-    // Apply subject filter from URL
-    if (subjectFilter) {
-      // First check the keyword mapping for the category
-      const matchesByKeywords = matchesCategory(tutor.subjects || [], subjectFilter);
-      // Also check direct match (in case tutor subject contains category name)
-      const directMatch = tutor.subjects?.some((s) => 
-        s.toLowerCase().includes(subjectFilter.toLowerCase()) ||
-        subjectFilter.toLowerCase().includes(s.toLowerCase())
-      );
+  const filteredTutors = tutors
+    .filter((tutor) => {
+      // Apply subject filter from URL
+      if (subjectFilter) {
+        // First check the keyword mapping for the category
+        const matchesByKeywords = matchesCategory(tutor.subjects || [], subjectFilter);
+        // Also check direct match (in case tutor subject contains category name)
+        const directMatch = tutor.subjects?.some((s) => 
+          s.toLowerCase().includes(subjectFilter.toLowerCase()) ||
+          subjectFilter.toLowerCase().includes(s.toLowerCase())
+        );
+        
+        if (!matchesByKeywords && !directMatch) return false;
+      }
       
-      if (!matchesByKeywords && !directMatch) return false;
-    }
-    
-    // Apply search query filter
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      tutor.profile?.full_name?.toLowerCase().includes(query) ||
-      tutor.subjects?.some((s) => s.toLowerCase().includes(query))
-    );
-  });
+      // Apply search query filter
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        tutor.profile?.full_name?.toLowerCase().includes(query) ||
+        tutor.subjects?.some((s) => s.toLowerCase().includes(query))
+      );
+    })
+    // Sort by experience years in descending order
+    .sort((a, b) => (b.experience_years || 0) - (a.experience_years || 0));
 
   return (
     <div className="min-h-screen bg-background">
