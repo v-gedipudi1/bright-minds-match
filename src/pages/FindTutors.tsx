@@ -36,6 +36,59 @@ const subjectCategories = [
   { name: "Business", icon: TrendingUp },
 ];
 
+// Map of category names to keywords that should match
+const categoryKeywords: Record<string, string[]> = {
+  "Mathematics": [
+    "math", "mathematics", "algebra", "calculus", "geometry", "trigonometry", 
+    "statistics", "probability", "arithmetic", "precalculus", "linear algebra",
+    "differential equations", "discrete math", "number theory", "sat math", "act math",
+    "gmat", "gre math", "ap calculus", "ap statistics"
+  ],
+  "Science": [
+    "science", "physics", "chemistry", "biology", "anatomy", "physiology",
+    "astronomy", "geology", "environmental science", "earth science", "lab",
+    "organic chemistry", "biochemistry", "ap physics", "ap chemistry", "ap biology",
+    "mcat", "dat", "neuroscience", "microbiology", "ecology"
+  ],
+  "Languages": [
+    "english", "spanish", "french", "german", "chinese", "mandarin", "japanese",
+    "korean", "italian", "portuguese", "arabic", "russian", "latin", "greek",
+    "esl", "language", "grammar", "writing", "reading", "vocabulary", "toefl",
+    "ielts", "linguistics", "hindi", "vietnamese", "hebrew"
+  ],
+  "Programming": [
+    "programming", "coding", "computer science", "software", "web development",
+    "python", "javascript", "java", "c++", "c#", "ruby", "php", "swift", "kotlin",
+    "html", "css", "react", "node", "sql", "database", "data science", "machine learning",
+    "ai", "artificial intelligence", "algorithms", "data structures", "cybersecurity",
+    "devops", "cloud", "aws", "azure", "pyspark", "big data", "computer", "it",
+    "information technology", "typescript", "golang", "rust", "scala", "r programming"
+  ],
+  "Literature": [
+    "literature", "english literature", "american literature", "british literature",
+    "creative writing", "poetry", "fiction", "essay", "ap literature", "ap lang",
+    "world literature", "comparative literature", "shakespeare", "novels"
+  ],
+  "Music": [
+    "music", "piano", "guitar", "violin", "drums", "singing", "vocal", "voice",
+    "music theory", "composition", "songwriting", "bass", "ukulele", "cello",
+    "flute", "saxophone", "trumpet", "clarinet", "orchestra", "band", "choir"
+  ],
+  "Art & Design": [
+    "art", "design", "drawing", "painting", "sculpture", "photography", "graphic design",
+    "illustration", "animation", "digital art", "fine art", "art history", "ceramics",
+    "printmaking", "ui", "ux", "user interface", "user experience", "figma", "adobe",
+    "photoshop", "illustrator", "sketch", "visual", "architecture"
+  ],
+  "Business": [
+    "business", "economics", "finance", "accounting", "marketing", "management",
+    "entrepreneurship", "mba", "investment", "stock", "trading", "consulting",
+    "project management", "strategy", "leadership", "human resources", "hr",
+    "supply chain", "operations", "real estate", "sales", "negotiation", "excel",
+    "financial modeling", "cfa", "cpa"
+  ],
+};
+
 const FindTutors = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -99,13 +152,31 @@ const FindTutors = () => {
     fetchTutors();
   }, []);
 
+  // Helper function to check if a tutor's subject matches a category
+  const matchesCategory = (tutorSubjects: string[], categoryName: string): boolean => {
+    const keywords = categoryKeywords[categoryName] || [];
+    
+    return tutorSubjects.some((subject) => {
+      const subjectLower = subject.toLowerCase();
+      // Check if any keyword matches the subject
+      return keywords.some((keyword) => 
+        subjectLower.includes(keyword) || keyword.includes(subjectLower)
+      );
+    });
+  };
+
   const filteredTutors = tutors.filter((tutor) => {
     // Apply subject filter from URL
     if (subjectFilter) {
-      const hasSubject = tutor.subjects?.some((s) => 
-        s.toLowerCase().includes(subjectFilter.toLowerCase())
+      // First check the keyword mapping for the category
+      const matchesByKeywords = matchesCategory(tutor.subjects || [], subjectFilter);
+      // Also check direct match (in case tutor subject contains category name)
+      const directMatch = tutor.subjects?.some((s) => 
+        s.toLowerCase().includes(subjectFilter.toLowerCase()) ||
+        subjectFilter.toLowerCase().includes(s.toLowerCase())
       );
-      if (!hasSubject) return false;
+      
+      if (!matchesByKeywords && !directMatch) return false;
     }
     
     // Apply search query filter
