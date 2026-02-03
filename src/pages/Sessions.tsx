@@ -47,6 +47,7 @@ const Sessions = () => {
   const [userRole, setUserRole] = useState<"student" | "tutor" | null>(null);
   const [updatingSession, setUpdatingSession] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
+  const [processingManualPayment, setProcessingManualPayment] = useState<string | null>(null);
   const [editingPrice, setEditingPrice] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>("");
   const [editingMeetingLink, setEditingMeetingLink] = useState<string | null>(null);
@@ -214,6 +215,32 @@ const Sessions = () => {
       toast.error(message);
     } finally {
       setProcessingPayment(null);
+    }
+  };
+
+  const handleManualPaymentConfirm = async (session: Session) => {
+    if (!user) return;
+    
+    setProcessingManualPayment(session.id);
+    try {
+      const { error } = await supabase
+        .from("sessions")
+        .update({ status: "confirmed" })
+        .eq("id", session.id);
+
+      if (error) throw error;
+
+      setSessions((prev) =>
+        prev.map((s) => (s.id === session.id ? { ...s, status: "confirmed" } : s))
+      );
+      
+      setPaymentDialogSession(null);
+      toast.success("Payment marked as sent! Your session is confirmed.");
+    } catch (error) {
+      console.error("Error confirming manual payment:", error);
+      toast.error("Failed to confirm payment");
+    } finally {
+      setProcessingManualPayment(null);
     }
   };
 
@@ -793,7 +820,9 @@ const Sessions = () => {
         open={!!paymentDialogSession}
         onOpenChange={(open) => !open && setPaymentDialogSession(null)}
         onStripePayment={() => paymentDialogSession && handlePayment(paymentDialogSession)}
+        onManualPaymentConfirm={() => paymentDialogSession && handleManualPaymentConfirm(paymentDialogSession)}
         processingStripe={processingPayment === paymentDialogSession?.id}
+        processingManual={processingManualPayment === paymentDialogSession?.id}
         sessionPrice={paymentDialogSession?.price || 0}
         sessionSubject={paymentDialogSession?.subject || ""}
       />
