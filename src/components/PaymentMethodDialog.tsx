@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Smartphone, Loader2, ArrowLeft } from "lucide-react";
+import { CreditCard, Smartphone, Loader2, ArrowLeft, CheckCircle } from "lucide-react";
 import venmoQr from "@/assets/venmo-qr.png";
 
 interface PaymentMethodDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStripePayment: () => void;
+  onManualPaymentConfirm: () => void;
   processingStripe: boolean;
+  processingManual: boolean;
   sessionPrice: number;
   sessionSubject: string;
 }
@@ -19,7 +21,9 @@ const PaymentMethodDialog = ({
   open,
   onOpenChange,
   onStripePayment,
+  onManualPaymentConfirm,
   processingStripe,
+  processingManual,
   sessionPrice,
   sessionSubject,
 }: PaymentMethodDialogProps) => {
@@ -115,9 +119,20 @@ const PaymentMethodDialog = ({
               </p>
             </div>
             <p className="text-sm text-muted-foreground">
-              After sending payment, please allow up to 24 hours for your session to be confirmed. 
               Include your name and "{sessionSubject}" in the memo.
             </p>
+            <Button
+              onClick={onManualPaymentConfirm}
+              disabled={processingManual}
+              className="w-full"
+            >
+              {processingManual ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <CheckCircle className="w-4 h-4 mr-2" />
+              )}
+              I've Sent Payment
+            </Button>
           </div>
         )}
 
@@ -141,6 +156,18 @@ const PaymentMethodDialog = ({
             <p className="text-sm text-muted-foreground">
               Scan the QR code or search for @brightmindsts in Venmo. Include your name and "{sessionSubject}" in the note.
             </p>
+            <Button
+              onClick={onManualPaymentConfirm}
+              disabled={processingManual}
+              className="w-full"
+            >
+              {processingManual ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <CheckCircle className="w-4 h-4 mr-2" />
+              )}
+              I've Sent Payment
+            </Button>
           </div>
         )}
       </DialogContent>
