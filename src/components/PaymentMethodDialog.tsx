@@ -87,7 +87,8 @@ const PaymentMethodDialog = ({
               </div>
             </Button>
 
-            <Button
+            {/* Stripe payment option - temporarily hidden, uncomment to re-enable */}
+            {/* <Button
               variant="outline"
               className="h-16 justify-start gap-4 text-left"
               onClick={onStripePayment}
@@ -104,7 +105,7 @@ const PaymentMethodDialog = ({
                 <p className="font-medium">Credit/Debit Card</p>
                 <p className="text-sm text-muted-foreground">Pay securely with Stripe</p>
               </div>
-            </Button>
+            </Button> */}
           </div>
         )}
 
