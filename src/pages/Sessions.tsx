@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Sparkles, ArrowLeft, Calendar, Clock, User, Loader2, BookOpen, CheckCircle2, XCircle, CreditCard, MessageSquare, Pencil, Check, X, Video, ExternalLink, Ban, Globe } from "lucide-react";
 import { toast } from "sonner";
+import PaymentMethodDialog from "@/components/PaymentMethodDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,6 +50,7 @@ const Sessions = () => {
   const [editingPrice, setEditingPrice] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>("");
   const [editingMeetingLink, setEditingMeetingLink] = useState<string | null>(null);
+  const [paymentDialogSession, setPaymentDialogSession] = useState<Session | null>(null);
   const [newMeetingLink, setNewMeetingLink] = useState<string>("");
 
   // Handle payment success/cancel from URL params
@@ -504,18 +506,11 @@ const Sessions = () => {
                       {userRole === "student" && session.status === "awaiting_payment" && (
                         <Button
                           size="sm"
-                          onClick={() => handlePayment(session)}
-                          disabled={processingPayment === session.id}
+                          onClick={() => setPaymentDialogSession(session)}
                           className="gap-1"
                         >
-                          {processingPayment === session.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <CreditCard className="w-4 h-4" />
-                              Pay ${session.price?.toFixed(2)}
-                            </>
-                          )}
+                          <CreditCard className="w-4 h-4" />
+                          Pay ${session.price?.toFixed(2)}
                         </Button>
                       )}
                       
@@ -792,6 +787,16 @@ const Sessions = () => {
           </CardContent>
         </Card>
       </main>
+
+      {/* Payment Method Selection Dialog */}
+      <PaymentMethodDialog
+        open={!!paymentDialogSession}
+        onOpenChange={(open) => !open && setPaymentDialogSession(null)}
+        onStripePayment={() => paymentDialogSession && handlePayment(paymentDialogSession)}
+        processingStripe={processingPayment === paymentDialogSession?.id}
+        sessionPrice={paymentDialogSession?.price || 0}
+        sessionSubject={paymentDialogSession?.subject || ""}
+      />
     </div>
   );
 };
